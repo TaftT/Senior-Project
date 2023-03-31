@@ -1,5 +1,4 @@
 import React from 'react';
-import Nav from './components/nav'
 import Header from './components/header'
 import Login from "./pages/login"
 import LandingPage from "./pages/landingPage"

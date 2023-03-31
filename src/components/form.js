@@ -98,11 +98,11 @@ constructor(props) {
                 let returnVals={}
                 Object.keys(this.state.copyFields).forEach((key) => {
                     let field = this.state.copyFields[key]
-                    if(field.type=='text' || field.type=='password' || field.type=='number' || field.type=='email' || field.type=='tel'){
+                    if(field.type==='text' || field.type==='password' || field.type==='number' || field.type==='email' || field.type==='tel'){
                         returnVals[key]=field.value
-                    } else if(field.type=='checkbox'){
+                    } else if(field.type==='checkbox'){
                         returnVals[key]=field.value
-                    } else if(field.type=='radio'){
+                    } else if(field.type==='radio'){
                         returnVals[key]=field.value
                         for (let i = 0; i < field.value.length; i++) {
                             if(field.value[i]){
@@ -111,7 +111,7 @@ constructor(props) {
                             }
                             
                         }
-                    } else if(field.type=='select'){
+                    } else if(field.type==='select'){
                         // console.log(field)
                         if(field.selected){
                             returnVals[key]=field.selected
@@ -119,7 +119,7 @@ constructor(props) {
                             returnVals[key]=field.value[0]
                         }
                         
-                    }else if(field.type=='hourrange'){
+                    }else if(field.type==='hourrange'){
                         // console.log(field)
                         if(field.selectedStart&&field.selectedEnd){
                             returnVals[key]={hourStart:Number(field.selectedStart),hourEnd:Number(field.selectedEnd)}
@@ -127,7 +127,7 @@ constructor(props) {
                             returnVals[key]={hourStart:-1,hourEnd:-1}
                         }
                         
-                    }else if(field.type=='textarea'){
+                    }else if(field.type==='textarea'){
                         returnVals[key]=field.value
                     } else {
                         
@@ -138,7 +138,7 @@ constructor(props) {
                 {
                     Object.keys(this.props.fields).map((name,index)=>{
                         let field =this.props.fields[name]
-                        if(field.type=='text' || field.type=='password' || field.type=='number' || field.type=='email'){
+                        if(field.type==='text' || field.type==='password' || field.type==='number' || field.type==='email'){
                             return(
                                 <div key={index} className="mb-3">
                                     {field.label?<label className="font-bold text-sm">{field.label}</label> :null }
@@ -149,7 +149,7 @@ constructor(props) {
                                     }}/>
                                 </div>
                             )
-                        } else if(field.type=='tel'){
+                        } else if(field.type==='tel'){
                             return(
                             <div key={index} className="mb-3">
                                     {field.label?<label className="font-bold text-sm">{field.label}</label> :null }
@@ -166,7 +166,7 @@ constructor(props) {
                                     />
                                 </div>   
                             )      
-                        } else if(field.type=='checkbox'){
+                        } else if(field.type==='checkbox'){
                             return(
                                 <div key={index} className="flex justify-around flex-wrap mb-3">
                                     { field.label.map((label,jndex)=>{
@@ -184,7 +184,7 @@ constructor(props) {
                                     }
                                 </div>
                             )
-                        } else if(field.type=='radio'){
+                        } else if(field.type==='radio'){
                             return(
                                 <div key={index} className="flex justify-around flex-wrap mb-3">
                                     <p  className="w-full text-center"><b>{field.placeHolder}</b></p>
@@ -207,19 +207,19 @@ constructor(props) {
                                     }
                                 </div>
                             )
-                        }else if(field.type=='submit'){
+                        }else if(field.type==='submit'){
                             return(
                                 <div key={index} className="mb-3">
                                     <input className='rounded-md bg-sky-900 text-white font-bold p-3 w-full hover:bg-sky-700' type="submit" value={field.label}/>
                                 </div>
                             )
-                        } else if(field.type=='reset'){
+                        } else if(field.type==='reset'){
                             return(
                                 <div key={index} className="mb-3">
                                     <input className='rounded-md bg-gray-500 text-white font-bold p-3 w-full hover:bg-gray-700' type="reset" value={field.label}/>
                                 </div>
                             )
-                        } else if(field.type=='select'){
+                        } else if(field.type==='select'){
                             return(
                                 <div key={index} className=" mb-3">
                                     <label className="font-bold text-sm ">{field.placeHolder}</label>
@@ -239,7 +239,7 @@ constructor(props) {
                                     
                                 </div>
                             )
-                        } else if(field.type=='hourrange'){
+                        } else if(field.type==='hourrange'){
                             const timesStr =["5am","6am","7am","8am","9am","10am","11am","12pm","1pm","2pm","3pm","4pm","5pm","6pm","7pm","8pm","9pm","10pm","11pm"]
                             const timesNum =[5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
                             return(
@@ -264,10 +264,10 @@ constructor(props) {
                     
                                         this.setState({copyFields:newFeilds})
                                     }}>
-                                        <option value={-1}>{this.state.copyFields[name].selectedStart!=-1?"Select the last hour open":"Closed"}</option>
+                                        <option value={-1}>{this.state.copyFields[name].selectedStart!==-1?"Select the last hour open":"Closed"}</option>
                                         {
                                             timesNum.map((num,index)=>{
-                                                if(this.state.copyFields[name].selectedStart!=-1 && num>this.state.copyFields[name].selectedStart){
+                                                if(this.state.copyFields[name].selectedStart!==-1 && num>this.state.copyFields[name].selectedStart){
                                                     return <option key={index} value={num}>{timesStr[index]}</option>
                                                 }
                                             })
@@ -275,7 +275,7 @@ constructor(props) {
                                     </select>
                                 </div>
                             )
-                        }else if(field.type=='textarea'){
+                        }else if(field.type==='textarea'){
                             return(
                                 <div key={index} className=" mb-3">
                                     {field.label?<label className="font-bold text-sm">{field.label}</label> :null }
@@ -287,13 +287,13 @@ constructor(props) {
                                     
                                 </div>
                             )
-                        } else if(field.type=='error'){
+                        } else if(field.type==='error'){
                             return(
                                 <div key={index} className=" mb-3">
                                     <p className='text-red-700'>{field.value}</p>
                                 </div>
                             )
-                        } else if(field.type=='info'){
+                        } else if(field.type==='info'){
                             return(
                                 <div key={index} className=" mb-3">
                                     <p>{field.value}</p>
