@@ -1,6 +1,4 @@
 import React from 'react';
-import Nav from '../components/nav'
-import Header from '../components/header'
 import Form from '../components/form'
 import {auth, googleProvider, getUser,db} from '../config/firebase'
 import {createUserWithEmailAndPassword, signInWithPopup,RecaptchaVerifier, signInWithPhoneNumber} from "firebase/auth"
@@ -164,7 +162,6 @@ constructor(props) {
     }
     render() {
         return (<>
-        <Header />
         <main className='p-5 w-full'>
             <h1 className='text-center font-bold text-3xl mb-5'>Sign Up</h1>
             {/* <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700' onClick={()=>{

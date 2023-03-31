@@ -1,6 +1,4 @@
 import React from 'react';
-import Nav from '../components/nav'
-import Header from '../components/header'
 import Form from '../components/form'
 import {auth, googleProvider, getUser,db} from '../config/firebase'
 import {signInWithPopup,signInWithEmailAndPassword,RecaptchaVerifier, signInWithPhoneNumber} from "firebase/auth"
@@ -113,7 +111,6 @@ componentDidMount() {
         },
   }
     return <>
-    <Header />
     <main className='p-5 w-full'>
       <h1 className='text-center font-bold text-3xl mb-5'>Login</h1>
       <div className='p-5 w-full bg-white shadow-md rounded-md'>
