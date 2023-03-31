@@ -7,6 +7,7 @@ import Nav from '../components/nav'
 import {ref,uploadBytes, getDownloadURL, } from "firebase/storage"
 import {v4} from "uuid"
 import Form from '../components/form'
+import { Link } from 'react-router-dom';
 
 const propTypes = {};
 
@@ -640,9 +641,9 @@ componentDidMount() {
                                 
                                 
                             }}/>
-                            <a className=" w-full cursor-pointer text-center mb-3 " href="/terms" target="_blank">
+                            <Link className=" w-full cursor-pointer text-center mb-3 " to="/terms" target="_blank">
                                 <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700'>Terms and Conditions</button>
-                            </a>
+                            </Link>
 
                             
                         

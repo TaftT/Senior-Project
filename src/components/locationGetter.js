@@ -34,10 +34,10 @@ handleOrientation(event) {
     const alpha = event.alpha;
     const beta = event.beta;
     const gamma = event.gamma;
-    if(absolute && alpha % 1 != 0 && beta % 1 != 0 && gamma % 1 != 0 && alpha<180 && beta<180 && gamma<100){
+    if(absolute && alpha % 1 !== 0 && beta % 1 !== 0 && gamma % 1 !== 0 && alpha<180 && beta<180 && gamma<100){
         ORIENTATIONCOUNTER+= 1
     }
-    if(ORIENTATIONCOUNTER==50){
+    if(ORIENTATIONCOUNTER===50){
         console.log(absolute,alpha,beta,gamma)
         this.setState({alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true},()=>{
             if(this.state.finishedGettingLocation && !this.state.sentData){
