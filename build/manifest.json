@@ -1,0 +1,17 @@
+{
+  "short_name": "PinDasher",
+  "name": "PinDasher",
+  "icons": [
+
+    {
+      "src": "favicon.png",
+      "type": "image/png",
+      "sizes": "107x107"
+    }
+  
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}
