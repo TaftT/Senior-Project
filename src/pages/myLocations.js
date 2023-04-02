@@ -610,7 +610,7 @@ componentDidMount() {
         })
 
     }).catch((error)=>{
-        window.location.replace("http://localhost:3000");
+        window.location.replace("https://pindasher.com/");
     });
     
 }

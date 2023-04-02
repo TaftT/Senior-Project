@@ -28,7 +28,7 @@ constructor(props) {
 // async signInWithGoogle(){
 //   try{
 //       await signInWithPopup(auth, googleProvider);
-//       window.location.replace("http://localhost:3000/home");
+//       window.location.replace("https://pindasher.com/home");
 //   } catch (error){
 //       console.log(error)
 //   }
@@ -37,7 +37,7 @@ constructor(props) {
 // async signInWithEmail(data){
 //   try{
 //       await signInWithEmailAndPassword(auth, data.email, data.password);
-//       window.location.replace("http://localhost:3000/home");
+//       window.location.replace("https://pindasher.com/home");
 //   } catch (error){
 //       console.log(error)
 //   }
@@ -95,7 +95,7 @@ checkPhoneNumber(number){
 componentDidMount() {
   getUser().then((user)=>{
       console.log(user)
-      window.location.replace("http://localhost:3000/home");
+      window.location.replace("https://pindasher.com/home");
   }).catch((error)=>{
       console.log(error)
   });
@@ -130,7 +130,7 @@ componentDidMount() {
                   this.setState({OTPCode:e.target.value}, async ()=>{
                       if(this.state.OTPCode.length==6){
                           this.state.signInConfirmObj.confirm(this.state.OTPCode).then((result)=>{
-                              window.location.replace("http://localhost:3000/home");
+                              window.location.replace("https://pindasher.com/home");
                           }).catch((error)=>{
                               if(error.message.includes("invalid-verification-code")){
                                   e.target.value=""

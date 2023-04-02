@@ -64,7 +64,7 @@ constructor(props) {
     //     try{
     //         const userCredential = await signInWithPopup(auth, googleProvider);
     //         await this.userSave(userCredential.user.uid)
-    //         window.location.replace("http://localhost:3000/home");
+    //         window.location.replace("https://pindasher.com/home");
     //     } catch (error){
     //         console.log(error)
     //     }
@@ -84,7 +84,7 @@ constructor(props) {
             // console.log(userCredential)
             // userCredential.user.uid
             await this.userSave("test")
-            // window.location.replace("http://localhost:3000/home");
+            // window.location.replace("https://pindasher.com/home");
 
         } catch (error){
             console.log(error)
@@ -155,7 +155,7 @@ constructor(props) {
     componentDidMount() {
         getUser().then((user)=>{
             console.log(user)
-            window.location.replace("http://localhost:3000/home");
+            window.location.replace("https://pindasher.com/home");
         }).catch((error)=>{
             console.log(error)
         });
@@ -228,7 +228,7 @@ constructor(props) {
                                 if(this.state.OTPCode.length==6){
                                     this.state.signInConfirmObj.confirm(this.state.OTPCode).then((result)=>{
                                         this.userSave(result.user.uid).then(()=>{
-                                            window.location.replace("http://localhost:3000/home");
+                                            window.location.replace("https://pindasher.com/home");
                                         })
                                     }).catch((error)=>{
                                         if(error.message.includes("invalid-verification-code")){

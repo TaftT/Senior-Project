@@ -29,7 +29,7 @@ constructor(props) {
     super(props);
 
     this.state = {
-        homePage:"http://localhost:3000/home",
+        homePage:"https://pindasher.com/home",
         showLogout:false,
     };
 }
@@ -37,7 +37,7 @@ constructor(props) {
         console.log("logout")
         try{
             await signOut(auth);
-            window.location.replace("http://localhost:3000");
+            window.location.replace("https://pindasher.com/");
         } catch (error){
             console.log(error)
         }
