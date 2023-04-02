@@ -24,7 +24,7 @@ function App() {
         <Route exact path='/explore' element={<Explore/>}/>
         <Route exact path='/myLocations' element={<MyLocations/>}/>
         <Route exact path='/terms' element={<Terms/>}/>
-        <Route element={<NotFound/>}/>
+        <Route path="*" element={<NotFound/>}/>
       </Routes>
       {/* Mobile only VVV */}
       <div style={{maxWidth:"500px", marginLeft:"auto",marginRight:"auto"}}>

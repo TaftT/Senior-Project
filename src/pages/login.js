@@ -3,6 +3,7 @@ import Form from '../components/form'
 import {auth, googleProvider, getUser,db} from '../config/firebase'
 import {signInWithPopup,signInWithEmailAndPassword,RecaptchaVerifier, signInWithPhoneNumber} from "firebase/auth"
 import {collection, getDocs, query, where} from "firebase/firestore"
+import { Link } from 'react-router-dom';
 
 const propTypes = {};
 
@@ -153,7 +154,12 @@ componentDidMount() {
             this.state.hideButton?
             <></>
             :
-            <input className='rounded-md bg-sky-900 text-white font-bold p-3 w-full hover:bg-sky-700' type="submit" form="loginForm" value="Login"/>
+            <div>
+              <input className='rounded-md bg-sky-900 text-white font-bold p-3 w-full hover:bg-sky-700' type="submit" form="loginForm" value="Login"/>
+              <Link to="/signUp">
+                  <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mt-5 hover:bg-sky-700'>Sign Up</button>
+              </Link>
+            </div> 
           }
           
         

@@ -2,9 +2,9 @@ import React from 'react';
 import Map from '../components/map'
 import LocationGetter from '../components/locationGetter'
 import {db,getUser,storage} from '../config/firebase'
-import {getDocs,collection, query, where,addDoc} from "firebase/firestore"
+import {getDocs,collection, query, where,addDoc, deleteDoc, updateDoc, doc} from "firebase/firestore"
 import Nav from '../components/nav'
-import {ref,uploadBytes, getDownloadURL, } from "firebase/storage"
+import {ref,uploadBytes, getDownloadURL, deleteObject } from "firebase/storage"
 import {v4} from "uuid"
 import Form from '../components/form'
 import { Link } from 'react-router-dom';
@@ -480,6 +480,42 @@ uploadFile(file,folder,name){
     })
 }
 
+deleteFile(imageURL,imageSpot,locationId){
+    return new Promise(async (resolve, reject) =>  {
+        if(imageURL){
+            let splitUrl = imageURL.split("/")
+            let imageNameEncoded = splitUrl[splitUrl.length-1].split("?")[0]
+            let imageName = decodeURI(imageNameEncoded)
+            let imageFileName = imageName.split("%2F")
+            console.log(imageFileName[0]+"/"+imageFileName[1])
+            const fileRef = ref(storage,imageFileName[0]+"/"+imageFileName[1])
+            deleteObject(fileRef).then(async (res)=>{
+                console.log(res)
+                const locationDoc = doc(db, "locations", locationId)
+                if(imageSpot==='logo'){
+                    await updateDoc(locationDoc, {logoURL:""})
+                    let newSelected = this.state.selectedLocation
+                    newSelected.logoURL =""
+                    this.setState({logoURL:"",selectedLocation:newSelected})
+                } else if(imageSpot==='img1'){
+                    await updateDoc(locationDoc, {img1URL:""})
+                    let newSelected = this.state.selectedLocation
+                    newSelected.img1URL =""
+                    this.setState({img1URL:"",selectedLocation:newSelected})
+                } else if(imageSpot==='img2'){
+                    await updateDoc(locationDoc, {img2URL:""})
+                    let newSelected = this.state.selectedLocation
+                    newSelected.img2URL =""
+                    this.setState({img2URL:"",selectedLocation:newSelected})
+                }
+                resolve(true)
+            })
+        }else{
+            resolve(false)
+        }  
+    })
+}
+
 async locationSave(data){
     try{
         let img1URL=""
@@ -517,6 +553,7 @@ async locationSave(data){
         const openHoursCollection = collection(db,"hoursOpen")
         let newHours = await addDoc(openHoursCollection,{
             locationId:newLocation.id,
+            ownerUserId:this.state.user.uid,
             sunday:data.sunday,
             monday:data.monday,
             tuesday:data.tuesday,
@@ -531,8 +568,38 @@ async locationSave(data){
     }
 }
 
-saveEditedLocation(data){
+async saveEditedLocation(data){
 
+}
+
+async deleteLocation(location){
+    const hoursColection = collection(db,"hoursOpen")
+    const q = query(hoursColection,where("locationId", "==", location.id))
+    getDocs(q).then(async (data)=>{
+        const filteredData = data.docs.map((doc)=>({
+            ...doc.data(),
+            id: doc.id
+        }))
+        const locationDoc = doc(db, "locations", location.id)
+        
+        if(location.logoURL.includes("firebasestorage.googleapis.com")){
+            this.deleteFile(location.logoURL,'logo',location.id)
+        }
+        if(location.img1URL.includes("firebasestorage.googleapis.com")){
+            this.deleteFile(location.img1URL,'img1',location.id)
+        }
+        if(location.img2URL.includes("firebasestorage.googleapis.com")){
+            this.deleteFile(location.img2URL,'img2',location.id)
+        }
+        if(filteredData.length>0){
+            const hoursDoc = doc(db, "hoursOpen", filteredData[0].id)
+            await deleteDoc(hoursDoc)
+        }
+        await deleteDoc(locationDoc)
+        
+        this.loadLocations()
+        
+    })
 }
 
 componentDidMount() {
@@ -568,9 +635,12 @@ componentDidMount() {
                             <LocationGetter buttonText={this.state.editing?"Change Pin":"Pin My Location"} reset={this.state.resetPin} resetCallBack={()=>{this.setState({resetPin:false})}} callBackSuccess={(data)=>{
                                 console.log("Success",data)
                                 this.setState({position:data})
+                                if(this.state.editing){
+                                    this.setState({newLocationPin:true})
+                                }
                                 }}/>
                             {
-                            (this.state.position.latitude && !this.state.editing) || (this.state.editing && this.state.newLocationPin)?
+                            (this.state.position.latitude && !this.state.editing) || (this.state.position.latitude && this.state.editing && this.state.newLocationPin)?
                             <div className="flex mb-5">
                                     <button className='flex justify-center items-center rounded-md bg-green-900 text-white font-bold p-3 w-1/2 hover:bg-green-700'
                                     onClick={()=>{
@@ -578,7 +648,7 @@ componentDidMount() {
                                     }}>
                                         {
                                             this.state.locationConfirmed?
-                                            <svg className="h-5 mr-3 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="white" d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
+                                            <svg className="h-5 mr-1 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="white" d="M256 512c141.4 0 256-114.6 256-256S397.4 0 256 0S0 114.6 0 256S114.6 512 256 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"/></svg>
                                             :
                                             <></>
                                         }
@@ -621,21 +691,22 @@ componentDidMount() {
                                                     });
                                                 } else{
                                                     this.locationSave(data)
+                                                    this.setState({locationInputScreen:false})
                                                     console.log(data)
                                                 }
                 
                                             }else {
-                                                this.setState({errorMsg:"You must agree to all terms before submitting"})
+                                                this.setState({errorMsg:"You must agree to all terms before submitting",buttonDisable:false})
                                             }
                                         } else {
-                                            this.setState({errorMsg:"Please add a location name AND description"})
+                                            this.setState({errorMsg:"Please add a location name AND description",buttonDisable:false})
                                         }
 
                                     } else {
-                                        this.setState({errorMsg:"Please Confirm your pin location"})
+                                        this.setState({errorMsg:"Please Confirm your pin location",buttonDisable:false})
                                     }
                                 } else {
-                                    this.setState({errorMsg:"Please Pin your location"})
+                                    this.setState({errorMsg:"Please Pin your location",buttonDisable:false})
                                 }
                                 
                                 
@@ -647,12 +718,12 @@ componentDidMount() {
 
                             
                         
-                            <div className="flex flex-col items-center">
+                            <div className="">
                                 {
                                     this.state.selectedLocation.logoURL?.includes("firebasestorage.googleapis.com")?
                                     <button className='rounded-md bg-red-700 text-white font-bold p-3 w-full hover:bg-red-600' 
                                             onClick={()=>{
-                                               
+                                                this.deleteFile(this.state.selectedLocation.logoURL,"logo",this.state.selectedLocation.id)
                                             }}
                                         >Remove</button>
                                     :
@@ -694,7 +765,7 @@ componentDidMount() {
                                     this.state.selectedLocation.img1URL?.includes("firebasestorage.googleapis.com")?
                                     <button className='rounded-md bg-red-700 text-white font-bold p-3 w-full hover:bg-red-600' 
                                             onClick={()=>{
-                                               
+                                                this.deleteFile(this.state.selectedLocation.img1URL, "img1",this.state.selectedLocation.id)
                                             }}
                                         >Remove</button>
                                     :
@@ -739,7 +810,7 @@ componentDidMount() {
                                     this.state.selectedLocation.img2URL?.includes("firebasestorage.googleapis.com")?
                                     <button className='rounded-md bg-red-700 text-white font-bold p-3 w-full hover:bg-red-600' 
                                             onClick={()=>{
-                                               
+                                                this.deleteFile(this.state.selectedLocation.img2URL,"img2",this.state.selectedLocation.id)
                                             }}
                                         >Remove</button>
                                     :
@@ -783,7 +854,7 @@ componentDidMount() {
 
                                 
                                
-                                <p>{this.state.errorMsg}</p>
+                                <p className="text-red-500">{this.state.errorMsg}</p>
                                 <input disabled={this.state.buttonDisable} className={this.state.buttonDisable?'rounded-md  text-white font-bold p-3 w-full hover:bg-gray-500 bg-gray-700':'rounded-md  text-white font-bold p-3 w-full hover:bg-sky-700 bg-sky-900'}  type="submit" form="createLocation" value="Save Location"/>
                             </div>
                                 
@@ -845,7 +916,7 @@ componentDidMount() {
                                         Edit</button>
                                         <button className='flex justify-center ml-3 items-center rounded-md bg-red-700 text-white font-bold p-3 w-1/2 hover:bg-red-500'
                                             onClick={()=>{
-                                                console.log(location)
+                                                this.deleteLocation(location)
                                             }}
                                         >Delete</button>
                                     </div>

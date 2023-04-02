@@ -14,10 +14,10 @@ constructor(props) {
                 {
                     this.props.render?
                     <div >
-                        <iframe className='w-full rounded-md bg-gray-300' style={{height:"350px"}} src={'https://maps.google.com/maps?q=' + this.props.latitude + ',%20' + this.props.longitude +'&t=k&z=17&ie=UTF8&iwloc=&output=embed'} frameBorder="0" scrolling="no" marginHeight="0" marginWidth="0"></iframe>   
+                        <iframe className='w-full rounded-md bg-gray-300' style={{height:"275px"}} src={'https://maps.google.com/maps?q=' + this.props.latitude + ',%20' + this.props.longitude +'&t=k&z=17&ie=UTF8&iwloc=&output=embed'} frameBorder="0" scrolling="no" marginHeight="0" marginWidth="0"></iframe>   
                     </div>
                     :
-                    <div className='w-full rounded-md bg-gray-300' style={{height:"350px"}}>
+                    <div className='w-full rounded-md bg-gray-300' style={{height:"275px"}}>
                        
                     </div>
                 }

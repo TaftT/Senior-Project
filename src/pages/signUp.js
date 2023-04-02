@@ -3,6 +3,7 @@ import Form from '../components/form'
 import {auth, googleProvider, getUser,db} from '../config/firebase'
 import {createUserWithEmailAndPassword, signInWithPopup,RecaptchaVerifier, signInWithPhoneNumber} from "firebase/auth"
 import {collection, addDoc, getDocs, query, where} from "firebase/firestore"
+import { Link } from 'react-router-dom';
 
 let formFeilds = { 
     name:{
@@ -209,7 +210,12 @@ constructor(props) {
                             this.state.hideButton?
                             <></>
                             :
-                            <input className='rounded-md bg-sky-900 text-white font-bold p-3 w-full hover:bg-sky-700' type="submit" form="signUpForm" value="Sign Up"/>
+                            <>
+                                <input className='rounded-md bg-sky-900 text-white font-bold p-3 w-full hover:bg-sky-700' type="submit" form="signUpForm" value="Sign Up"/>
+                                <Link className=" w-full cursor-pointer text-center mb-3 " to="/terms" target="_blank">
+                                    <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mt-5 hover:bg-sky-700'>Terms and Conditions</button>
+                                </Link>
+                            </>
                         }
                         
                 </div>
