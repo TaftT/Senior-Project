@@ -26,7 +26,8 @@ constructor(props) {
         sentData:false,
         timer:false,
         reset:false,
-        gettingLocation:false
+        gettingLocation:false,
+        error:"",
     };
 }
 handleOrientation(event) {
@@ -39,6 +40,8 @@ handleOrientation(event) {
     }
     if(ORIENTATIONCOUNTER===50){
         console.log(absolute,alpha,beta,gamma)
+        let newError=this.state.error + absolute+alpha+beta+gamma 
+        this.setState({error:newError})
         this.setState({alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true},()=>{
             if(this.state.finishedGettingLocation && !this.state.sentData){
                 this.setState({sentData:true,buttonText:"Location Collected"},()=>{
@@ -107,8 +110,9 @@ getLocation(){
         const longitude = crd.longitude;
         const altitude = crd.altitude
         
-        const mylocation ='Latitude: ' + latitude + ' Longitude: ' + longitude;
-        console.log(mylocation)
+        const mylocation =' Latitude: ' + latitude + ' Longitude: ' + longitude;
+        let newError=this.state.error + mylocation 
+        this.setState({error:newError})
         // this.checkLocation(crd.latitude,crd.longitude)
         // if(LOCATIONCOUNTER==0 || (latitude != this.state.latitude && longitude!==this.state.longitude && (latitude<this.state.latitude+0.5 && latitude>this.state.latitude-0.5 && longitude<this.state.longitude+0.5 && longitude>this.state.longitude-0.5))){
             // 
@@ -186,7 +190,9 @@ buttonEnable(){
 }
 
     render() {
-        return <button disabled={this.state.disableButton} 
+        return (<>
+        <p>{this.state.error}</p>
+        <button disabled={this.state.disableButton} 
         className={this.state.disableButton? 'flex justify-center items-center rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5':'flex justify-center items-center rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700'} 
         onClick={()=>{
             
@@ -234,7 +240,9 @@ buttonEnable(){
                 :<></>
             }
         
-        </button>;
+        </button>
+        
+        </>);
     }
 }
 
