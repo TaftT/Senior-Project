@@ -239,12 +239,224 @@ loadHours(locationId){
     })
 }
 
+clearForm(){
+    return new Promise(async (resolve, reject) =>  {
+        let newPosition ={}
+        let newForm = { 
+            locationName:{
+                type:"text",
+                value:"",
+                label:"Name*",
+                placeHolder:"Name..."
+                },
+            description:{
+                type:"textarea",
+                value:"",
+                label:"Description*",
+                placeHolder:"Description..."
+                },
+            radius:{
+                type:"select",
+                value:["Small","Medium","Large"],
+                label:["Small","Medium","Large"],
+                placeHolder:"Geofence Radius",
+                selected:"Medium",
+                },
+            website:{
+                type:"text",
+                label:"Website Url",
+                placeHolder:"Website...",
+                value:"",
+                },                      
+            placeId:{
+                type:"text",
+                value:"",
+                label:"Google Place Id",
+                placeHolder:"Google Place Id..."
+                },
+            category:{
+                type:"select",
+                value:[
+                    "Activity",
+                    "Antiques",
+                    "Arcade",
+                    "Art Gallery",
+                    "Bar",
+                    "Beach",
+                    "Books",
+                    "Botanical Garden",
+                    "Campground",
+                    "Cinema",
+                    "Clothing",
+                    "Concert",
+                    "Convenience stores",
+                    "Dance",
+                    "Electronics",
+                    "Entertainment",
+                    "Event",
+                    "Food and beverage",
+                    "Food Truck",
+                    "Gift shops",
+                    "Golf",
+                    "Health and beauty",
+                    "Historical Site",
+                    "Home improvement",
+                    "Jewelry",
+                    "Market",
+                    "Museum",
+                    "Music",
+                    "National Park",
+                    "Nightclub",
+                    "Outdoors",
+                    "Pets",
+                    "Park",
+                    "Restaurant",
+                    "Shopping Mall",
+                    "Ski Resort",
+                    "Sports",
+                    "Supermarkets/grocery stores",
+                    "Theater",
+                    "Theme Park",
+                    "Thrift",
+                    "Trail",
+                    "Toys",
+                    "University",
+                    "Zoo"
+                    ],
+                label:[
+                    "Activity",
+                    "Antiques",
+                    "Arcade",
+                    "Art Gallery",
+                    "Bar",
+                    "Beach",
+                    "Books",
+                    "Botanical Garden",
+                    "Campground",
+                    "Cinema",
+                    "Clothing",
+                    "Concert",
+                    "Convenience stores",
+                    "Dance",
+                    "Electronics",
+                    "Entertainment",
+                    "Event",
+                    "Food and beverage",
+                    "Food Truck",
+                    "Gift shops",
+                    "Golf",
+                    "Health and beauty",
+                    "Historical Site",
+                    "Home improvement",
+                    "Jewelry",
+                    "Market",
+                    "Museum",
+                    "Music",
+                    "National Park",
+                    "Nightclub",
+                    "Outdoors",
+                    "Pets",
+                    "Park",
+                    "Restaurant",
+                    "Shopping Mall",
+                    "Ski Resort",
+                    "Sports",
+                    "Supermarkets/grocery stores",
+                    "Theater",
+                    "Theme Park",
+                    "Thrift",
+                    "Trail",
+                    "Toys",
+                    "University",
+                    "Zoo"
+                    ],
+                placeHolder:"Category",
+                selected:"Activity",
+                },
+            sunday:{
+                type:"hourrange",
+                placeHolder:"Sunday Hours",
+                selectedStart:-1,
+                selectedEnd:0,
+                },
+            monday:{
+                type:"hourrange",
+                placeHolder:"Monday Hours",
+                selectedStart:-1,
+                selectedEnd:0,
+                },
+            tuesday:{
+                type:"hourrange",
+                placeHolder:"Tuesday Hours",
+                selectedStart:-1,
+                selectedEnd:0,
+                },
+            wednesday:{
+                type:"hourrange",
+                placeHolder:"Wednesday Hours",
+                selectedStart:-1,
+                selectedEnd:0,
+                },
+            thursday:{
+                type:"hourrange",
+                placeHolder:"Thursday Hours",
+                selectedStart:-1,
+                selectedEnd:0,
+                },
+            friday:{
+                type:"hourrange",
+                placeHolder:"Friday Hours",
+                selectedStart:-1,
+                selectedEnd:0,
+                },
+            saturday:{
+                type:"hourrange",
+                placeHolder:"Saturday Hours",
+                selectedStart:-1,
+                selectedEnd:0,
+                },
+            agreement:{
+                type:"checkbox",
+                value:[false,false],
+                label:["I have read and agree to the terms and conditions.","I have authorization to allow people onto this land."],
+                placeHolder:""
+                },
+        }
+            
+        this.setState({
+            position:newPosition,
+            formFeilds:newForm,
+            editing:true,
+            logoFile:null,
+            img1File:null,
+            img2File:null,
+            logoURL:"",
+            img1URL:"",
+            img2URL:"",
+            resetPin:false,
+            locationConfirmed:false,
+            editing:false,
+            newLocationPin:false,
+            selectedLocation:{},
+            buttonDisable:false,
+            locationInfo:{},
+            position:{},
+        },()=>{
+            resolve(true)
+        })
+
+    }).catch((error)=>{
+        console.log(error)
+    })
+
+}
+
 autoFillFor(location){
     return new Promise(async (resolve, reject) =>  {
         this.loadHours(location.id).then((hours)=>{
             let locationHours = hours[0]
             let newPosition ={
-                altitud:location.altitude,
+                altitude:location.altitude,
                 latitude:location.latitude,
                 longitude:location.longitude,
             }
@@ -568,8 +780,77 @@ async locationSave(data){
     }
 }
 
-async saveEditedLocation(data){
-
+async saveEditedLocation(data,id){
+    try{
+        let img1URL=""
+        let img2URL=""
+        let logoURL=""
+        
+        if(this.state.logoFile){
+            logoURL = await this.uploadFile(this.state.logoFile,"locationLogos",data.locationName+" logo")
+        }
+         if(this.state.img1File){
+            img1URL = await this.uploadFile(this.state.img1File,"locationImages",data.locationName+" img1")
+        }
+        if(this.state.img2File){
+            img2URL = await this.uploadFile(this.state.img2File,"locationImages",data.locationName+" img2")
+        }
+        const dataDoc = doc(db,"locations",id)
+        console.log({
+            active:true,
+            description:data.description,
+            img1URL:img1URL,
+            img2URL:img2URL,
+            logoURL:logoURL,
+            altitude:this.state.position.altitude,
+            latitude:this.state.position.latitude,
+            longitude:this.state.position.longitude,
+            name:data.locationName,
+            websiteURL:data.website,
+            totalVisits:0,
+            radius:data.radius,
+            placeId:data.placeId,
+            category:data.category
+        })
+        let newLocation = await updateDoc(dataDoc,{
+            active:true,
+            description:data.description,
+            img1URL:img1URL,
+            img2URL:img2URL,
+            logoURL:logoURL,
+            altitude:this.state.position.altitude,
+            latitude:this.state.position.latitude,
+            longitude:this.state.position.longitude,
+            name:data.locationName,
+            websiteURL:data.website,
+            totalVisits:0,
+            radius:data.radius,
+            placeId:data.placeId,
+            category:data.category
+        })
+        const hoursColection = collection(db,"hoursOpen")
+        const q = query(hoursColection,where("locationId", "==", id))
+        getDocs(q).then(async (data)=>{
+            const filteredData = data.docs.map((doc)=>({
+                ...doc.data(),
+                id: doc.id
+            }))
+            const openHoursDoc = doc(db,"hoursOpen",filteredData[0].id)
+            let newHours = await updateDoc(openHoursDoc,{
+                sunday:data.sunday,
+                monday:data.monday,
+                tuesday:data.tuesday,
+                wednesday:data.wednesday,
+                thursday:data.thursday,
+                friday:data.friday,
+                saturday:data.saturday
+            })
+        })
+        
+        
+    } catch (error){
+        console.log(error)
+    }
 }
 
 async deleteLocation(location){
@@ -610,7 +891,7 @@ componentDidMount() {
         })
 
     }).catch((error)=>{
-        window.location.replace("https://pindasher.com/");
+        window.location.replace("http://localhost:3000/");
     });
     
 }
@@ -626,7 +907,9 @@ componentDidMount() {
                         <h1 className='text-center font-bold text-3xl mb-5'>New Location</h1>
                         <button className='rounded-md bg-gray-600 text-white font-bold p-3 w-1/4 mb-5 hover:bg-gray-400' 
                             onClick={()=>{
-                                this.setState({locationInputScreen:false})
+                                this.clearForm().then(()=>{
+                                    this.setState({locationInputScreen:false})
+                                })
                             }}
                         >Back</button>
 
@@ -666,7 +949,7 @@ componentDidMount() {
                                 this.setState({errorMsg:"",buttonDisable:true})
                                 console.log(this.state.position)
                                 if(this.state.position!={}){
-                                    if(this.state.locationConfirmed){
+                                    if(this.state.locationConfirmed || (this.state.editing && !this.state.newLocationPin) || (this.state.editing && this.state.newLocationPin && this.state.locationConfirmed)){
                                         if(data.locationName && data.description){
                                             if(!data.agreement.includes(false)){
                                                 let schedule = {
@@ -690,7 +973,12 @@ componentDidMount() {
                                                         return
                                                     });
                                                 } else{
-                                                    this.locationSave(data)
+                                                    if(!this.state.editing){
+                                                        this.locationSave(data)
+                                                    } else {
+                                                        this.saveEditedLocation(data,this.state.selectedLocation.id)
+                                                    }
+                                                    
                                                     this.setState({locationInputScreen:false})
                                                     console.log(data)
                                                 }
@@ -727,8 +1015,8 @@ componentDidMount() {
                                             }}
                                         >Remove</button>
                                     :
-                                    <input className='w-full p-2 rounded-md border-2 'type="text" defaultValue={this.state.selectedLocation.logoURL} placeholder="Logo URL" 
-                                        onChange={(e)=>{
+                                    <input disabled={this.state.logoFile} className={this.state.logoFile? 'w-full p-2 rounded-md border-2 bg-gray-200':'w-full p-2 rounded-md border-2'} type="text" defaultValue={this.state.selectedLocation.logoURL} placeholder="Logo URL" 
+                                        onBlur={(e)=>{
                                         this.setState({logoURL:e.target.value})
                                         }}/>
                                 }
@@ -737,15 +1025,16 @@ componentDidMount() {
                                     this.state.selectedLocation.logoURL || this.state.logoURL?
                                     <div className='bg-gray-300 h-48 w-full rounded-md mb-4 ' style={{backgroundImage:`url('${this.state.logoURL?this.state.logoURL:this.state.selectedLocation.logoURL}')`,backgroundRepeat:"no-repeat",backgroundPosition:"center", backgroundSize:"cover"}}></div>
                                     :
-                                    <label className="block mb-4">
+                                    <label className="block mb-4" style={{width:"225px"}}>
                                         <span className="">Upload your Logo (Under 50KB)</span>
-                                        <input type="file" className="block w-full text-sm text-slate-500
+                                        <input type="file" className="block text-sm text-slate-500
                                         file:mr-4 file:py-2 file:px-4
                                         file:rounded-full file:border-0
                                         file:text-sm file:font-semibold
                                         file:bg-sky-900 file:text-white
                                         hover:file:bg-sky-700
                                         " 
+                                        
                                         onChange={(e)=>{
                                             let myFile = e.target.files[0]
                                             if(myFile.size < 50000){
@@ -769,8 +1058,8 @@ componentDidMount() {
                                             }}
                                         >Remove</button>
                                     :
-                                    <input className='w-full p-2 rounded-md border-2 'type="text" defaultValue={this.state.selectedLocation.img1URL} placeholder="Featured Image URL" 
-                                        onChange={(e)=>{
+                                    <input disabled={this.state.img1File} className={this.state.img1File? 'w-full p-2 rounded-md border-2 bg-gray-200':'w-full p-2 rounded-md border-2'} type="text" defaultValue={this.state.selectedLocation.img1URL} placeholder="Featured Image URL" 
+                                        onBlur={(e)=>{
                                             this.setState({img1URL:e.target.value})
                                         }}/>
                                 }
@@ -781,15 +1070,17 @@ componentDidMount() {
                                     this.state.selectedLocation.img1URL || this.state.img1URL?
                                     <div className='bg-gray-300 h-48 w-full rounded-md mb-4' style={{backgroundImage:`url('${this.state.img1URL?this.state.img1URL:this.state.selectedLocation.img1URL}')`,backgroundRepeat:"no-repeat",backgroundPosition:"center", backgroundSize:"cover"}}></div>
                                     :
-                                    <label className="block mb-4">
+                                    <label className="block mb-4" style={{width:"225px"}}>
                                         <span className="">Upload a featured image (Under 100KB)</span>
-                                        <input type="file" className="block w-full text-sm text-slate-500
+                                        <input type="file" className="block text-sm text-slate-500
                                             file:mr-4 file:py-2 file:px-4
                                             file:rounded-full file:border-0
                                             file:text-sm file:font-semibold
                                             file:bg-sky-900 file:text-white
                                             hover:file:bg-sky-700
                                             "
+                                            style={{width:"300px"}}
+
                                             onChange={(e)=>{
                                                 let myFile = e.target.files[0]
                                                 if(myFile.size < 100000){
@@ -810,30 +1101,32 @@ componentDidMount() {
                                     this.state.selectedLocation.img2URL?.includes("firebasestorage.googleapis.com")?
                                     <button className='rounded-md bg-red-700 text-white font-bold p-3 w-full hover:bg-red-600' 
                                             onClick={()=>{
-                                                this.deleteFile(this.state.selectedLocation.img2URL,"img2",this.state.selectedLocation.id)
+                                                console.log(this.state.selectedLocation.id)
+                                                // this.deleteFile(this.state.selectedLocation.img2URL,"img2",this.state.selectedLocation.id)
                                             }}
                                         >Remove</button>
                                     :
-                                    <input className='w-full p-2 rounded-md border-2'type="text" defaultValue={this.state.selectedLocation.img2URL} placeholder="Secondary Image URL" 
-                                    onChange={(e)=>{
+                                    <input disabled={this.state.img2File} className={this.state.img2File? 'w-full p-2 rounded-md border-2 bg-gray-200':'w-full p-2 rounded-md border-2'} type="text" defaultValue={this.state.selectedLocation.img2URL} placeholder="Secondary Image URL" 
+                                    onBlur={(e)=>{
                                         this.setState({img2URL:e.target.value})
                                     }}/>
                                 }
                                 
                                 
                                 {
-                                    this.state.selectedLocation.img2URL || this.state.img2UR?
+                                    this.state.selectedLocation.img2URL || this.state.img2URL?
                                     <div className='bg-gray-300 h-48 w-full rounded-md mb-4 ' style={{backgroundImage:`url('${this.state.img2URL?this.state.img2URL:this.state.selectedLocation.img2URL}')`,backgroundRepeat:"no-repeat",backgroundPosition:"center", backgroundSize:"cover"}}></div>
                                     :
-                                    <label className="block mb-4">
+                                    <label className="block mb-4" style={{width:"225px"}}>
                                     <span className="">Upload a secondary image (Under 100KB)</span>
-                                    <input type="file" className="block w-full text-sm text-slate-500
+                                    <input type="file" className="block  text-sm text-slate-500
                                         file:mr-4 file:py-2 file:px-4
                                         file:rounded-full file:border-0
                                         file:text-sm file:font-semibold
                                         file:bg-sky-900 file:text-white
                                         hover:file:bg-sky-700
                                         "
+                                        style={{width:"300px"}}
                                         onChange={(e)=>{
                                             let myFile = e.target.files[0]
                                             if(myFile.size < 100000){
