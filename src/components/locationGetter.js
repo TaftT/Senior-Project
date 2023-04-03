@@ -145,7 +145,7 @@ getLocation(){
     let GEOID = navigator.geolocation.watchPosition(success, error, options);
     ORIENTATIONCOUNTER=0
     LOCATIONCOUNTER=0
-    window.addEventListener("deviceorientation", (event)=>this.handleOrientation(event), true);
+    window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
     this.setState({GEOID:GEOID})
 
 }
