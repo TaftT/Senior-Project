@@ -730,17 +730,17 @@ deleteFile(imageURL,imageSpot,locationId){
 
 async locationSave(data){
     try{
-        let img1URL=""
-        let img2URL=""
-        let logoURL=""
+        let img1URL=this.state.img2URL
+        let img2URL=this.state.img1URL
+        let logoURL=this.state.logoURL
         
-        if(this.state.logoFile){
+        if(this.state.logoFile && this.state.logoURL !==""){
             logoURL = await this.uploadFile(this.state.logoFile,"locationLogos",data.locationName+" logo")
         }
-         if(this.state.img1File){
+         if(this.state.img1File && this.state.img1URL !==""){
             img1URL = await this.uploadFile(this.state.img1File,"locationImages",data.locationName+" img1")
         }
-        if(this.state.img2File){
+        if(this.state.img2File && this.state.img2URL !==""){
             img2URL = await this.uploadFile(this.state.img2File,"locationImages",data.locationName+" img2")
         }
         const dataCollection = collection(db,"locations")
@@ -782,36 +782,20 @@ async locationSave(data){
 
 async saveEditedLocation(data,id){
     try{
-        let img1URL=""
-        let img2URL=""
-        let logoURL=""
+        let img1URL=this.state.img2URL
+        let img2URL=this.state.img1URL
+        let logoURL=this.state.logoURL
         
-        if(this.state.logoFile){
+        if(this.state.logoFile && this.state.logoURL !==""){
             logoURL = await this.uploadFile(this.state.logoFile,"locationLogos",data.locationName+" logo")
         }
-         if(this.state.img1File){
+         if(this.state.img1File && this.state.img1URL !==""){
             img1URL = await this.uploadFile(this.state.img1File,"locationImages",data.locationName+" img1")
         }
-        if(this.state.img2File){
+        if(this.state.img2File && this.state.img2URL !==""){
             img2URL = await this.uploadFile(this.state.img2File,"locationImages",data.locationName+" img2")
         }
         const dataDoc = doc(db,"locations",id)
-        console.log({
-            active:true,
-            description:data.description,
-            img1URL:img1URL,
-            img2URL:img2URL,
-            logoURL:logoURL,
-            altitude:this.state.position.altitude,
-            latitude:this.state.position.latitude,
-            longitude:this.state.position.longitude,
-            name:data.locationName,
-            websiteURL:data.website,
-            totalVisits:0,
-            radius:data.radius,
-            placeId:data.placeId,
-            category:data.category
-        })
         let newLocation = await updateDoc(dataDoc,{
             active:true,
             description:data.description,
@@ -845,9 +829,7 @@ async saveEditedLocation(data,id){
                 friday:data.friday,
                 saturday:data.saturday
             })
-        })
-        
-        
+        })  
     } catch (error){
         console.log(error)
     }
@@ -891,7 +873,8 @@ componentDidMount() {
         })
 
     }).catch((error)=>{
-        window.location.replace("http://localhost:3000/");
+        // window.location.replace("http://localhost:3000/");
+        window.location.replace("https://pindasher.com/");
     });
     
 }
