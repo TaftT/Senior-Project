@@ -256,6 +256,16 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                     </div>
                 </span>
             </div>
+            <p>lat:{this.state.latitude}</p>
+            <p>lon:{this.state.longitude}</p>
+            <p>accuracy:{this.state.accuracy}</p>
+            <p>altitude:{this.state.altitude}</p>
+            <p>altitude Accuracy:{this.state.altitudeAccuracy}</p>
+            <p>heading:{this.state.heading}</p>
+            <p>speed:{this.state.speed}</p>
+            <p>alpha:{this.state.alpha}</p>
+            <p>beta:{this.state.beta}</p>
+            <p>gamma:{this.state.gamma}</p>
             
             <main className='p-5 w-full'>
             {this.state.loading?
