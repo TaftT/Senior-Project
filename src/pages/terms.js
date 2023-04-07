@@ -201,6 +201,21 @@ constructor(props) {
 
         <p className='mb-2'>These Terms and Conditions were last updated on March 31, 2023.</p>
 
+        <h1 className='font-bold text-3xl mb-5'>Safty Tips:</h1>
+
+        <p className='mb-2'><b>Be aware of your surroundings:</b> Always be aware of your surroundings while using PinDasher. Watch where you are walking and avoid walking into traffic, bodies of water, or other dangerous areas.</p>
+
+        <p className='mb-2'><b>Explore in groups:</b> Exploring in groups can be more fun and also safer. If you are Exploring with a group, you can watch each other's backs and be more aware of your surroundings.</p>
+
+        <p className='mb-2'><b>Use the buddy system:</b> If you are going out to explore alone, tell a friend or family member where you will be going and when you will be back. Check in with them periodically throughout your dash.</p>
+
+        <p className='mb-2'><b>Stay in well-lit areas:</b> Avoid exploring in areas that are poorly lit or that have limited visibility. Stick to well-lit streets and paths, and avoid alleys or other areas that could be dangerous.</p>
+
+        <p className='mb-2'><b>Don't trespass:</b> Respect other people's property and stay out of private areas. Don't go into someone's backyard or climb over fences or walls to reach a location.</p>
+
+        <p className='mb-2'><b>Be aware of the weather:</b> Don't play in extreme weather conditions, such as during a thunderstorm, heat wave, or blizzard. Stay hydrated and dress appropriately for the weather.</p>
+
+        <p className='mb-2'><b>Be cautious with strangers:</b> Be cautious when interacting with strangers while exploring the game. Don't share personal information and be aware of your surroundings at all times.</p>
 
         </div>
         </main>);

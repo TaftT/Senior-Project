@@ -99,7 +99,6 @@ componentDidUpdate(){
 getLocation(){
     const options = {
         enableHighAccuracy: true,
-        timeout: 5000,
         maximumAge: 0,
       };
     const success = (pos) => {

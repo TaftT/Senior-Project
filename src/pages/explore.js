@@ -5,7 +5,8 @@ import Nav from '../components/nav'
 import dayjs from 'dayjs'
 import Map from '../components/map'
 
-
+let ORIENTATIONCOUNTER = 0
+let LOCATIONCOUNTER = 0
 
 class Explore extends React.Component {
 constructor(props) {
@@ -19,7 +20,20 @@ constructor(props) {
         hourLocationIndex:[],
         selectedLocation:null,
         selectedLocationIsOpen:false,
-        selectedLocationHours:[]
+        selectedLocationHours:[],
+        accuracy:0,
+        latitude:0,
+        longitude:0,
+        altitude:0,
+        altitudeAccuracy:0,
+        heading:0,
+        speed:0,
+        alpha:0,
+        beta:0,
+        gamma:0,
+        absoluteOrientation:false,
+        newSnap:true,
+        arrived:false,
     };
 }
 
@@ -32,7 +46,7 @@ loadLocations(){
                 id: doc.id
             }))
             this.setState({locations:filteredData},()=>{
-                console.log(this.state.locations)
+                
                 resolve(true)
             })
         }).catch((error)=>{
@@ -55,7 +69,7 @@ loadAllHours(){
                 return locationHours.locationId
             })
             this.setState({hoursOpen:filteredData, hourLocationIndex:hourLocationIndex},()=>{
-                console.log(this.state.hoursOpen)
+                
                 resolve(true)
             })
         }).catch((error)=>{
@@ -95,12 +109,94 @@ isOpen(locationId){
     }
 }
 
+handleOrientation(event) {
+    const absolute = event.absolute;
+    const alpha = event.alpha;
+    const beta = event.beta;
+    const gamma = event.gamma;
+    if(absolute && alpha % 1 !== 0 && beta % 1 !== 0 && gamma % 1 !== 0 && alpha<180 && beta<180 && gamma<100){
+        ORIENTATIONCOUNTER+= 1
+    }
+    if(ORIENTATIONCOUNTER===50){
+        console.log(absolute,alpha,beta,gamma)
+        ORIENTATIONCOUNTER=0
+        this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true},
+            ()=>{
+            console.log(this.checkLocation())
+        })
+    }
+  }
+
+getLocation(){
+    const options = {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+      };
+    const success = (pos) => {
+        const crd = pos.coords;
+      
+        if(this.state.newSnap){
+            if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
+                
+                this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
+                    console.log(locations)
+                    this.setState({
+                        locations:locations,
+                        newSnap:false,
+                        accuracy:crd.accuracy,
+                        latitude:crd.latitude,
+                        longitude:crd.longitude,
+                        altitude:crd.altitude,
+                        altitudeAccuracy:crd.altitudeAccuracy,
+                        heading:crd.heading,
+                        speed:crd.speed,
+                    },()=>{
+                        console.log(this.state.longitude,this.state.latitude)
+        
+                    })
+    
+                })
+            }   
+        }
+        return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
+    }
+    const error = (err) => {
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+    let GEOID = navigator.geolocation.watchPosition(success, error, options);
+    ORIENTATIONCOUNTER=0
+    LOCATIONCOUNTER=0
+    window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
+    this.setState({GEOID:GEOID})
+
+}
+
+checkLocation() {
+    if(this.state.selectedLocation){
+        const radius = 50; // 50 feet
+        const earthRadius = 6371000; // meters
+        const latDistance = this.toRadians(this.state.selectedLocation.latitude - this.state.latitude);
+        const lonDistance = this.toRadians(this.state.selectedLocation.longitude - this.state.longitude);
+        const a =
+        Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+        Math.cos(this.toRadians(this.state.latitude)) *
+            Math.cos(this.toRadians(this.state.longitude)) *
+            Math.sin(lonDistance / 2) *
+            Math.sin(lonDistance / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = earthRadius * c;
+        let arrived = distance <= radius
+        this.setState({arrived:arrived})
+        return arrived;
+    }
+  }
+
 componentDidMount() {
     this.setState({loading:true})
     getUser().then((user)=>{
-        console.log(user)
         this.setState({user:user},()=>{
             this.loadLocations().then(()=>{
+                this.getLocation()
                 this.loadAllHours().then(()=>{
                     this.setState({loading:false})
                 })
@@ -113,6 +209,41 @@ componentDidMount() {
     });
     
 }
+
+
+toRadians(degrees) {
+    return degrees * (Math.PI / 180);
+  }
+
+sortLocationsByDistance(currentLat, currentLong, locations) {
+    return new Promise(async (resolve, reject) =>  {
+        // Loop through each location and calculate the distance to the current location
+        const sortedLocations = locations.map(location => {
+            const lat1 = this.toRadians(currentLat);
+            const lon1 = this.toRadians(currentLong);
+            const lat2 = this.toRadians(location.latitude);
+            const lon2 = this.toRadians(location.longitude);
+
+            const dlon = lon2 - lon1;
+            const dlat = lat2 - lat1;
+
+            const a =
+            Math.pow(Math.sin(dlat / 2), 2) +
+            Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = 6371 * c; // Earth's radius is approximately 6,371 kilometers
+
+            return { ...location, distance };
+        });
+
+        // Sort the locations by distance
+        sortedLocations.sort((a, b) => a.distance - b.distance);
+
+        resolve(sortedLocations);
+    }) 
+  }
+  
+
 
     render() {
         
@@ -151,7 +282,12 @@ componentDidMount() {
                                         </div>
                                     </div>
                                     <Map render={this.state.selectedLocation.latitude && this.state.selectedLocation.longitude } latitude={this.state.selectedLocation.latitude} longitude={this.state.selectedLocation.longitude}/>
-                                    <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700'>Claim Points</button>
+                                    {
+                                        this.state.arrived?
+                                            <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700'>Claim Points</button>
+                                        :
+                                            <button disabled={true} className='rounded-md bg-red-700 text-white font-bold p-3 w-full mb-5 '>You are too far from Location</button>
+                                    }
                                     <div className="flex justify-between">
                                         <div className={this.state.selectedLocation.availablePoints>=50?'flex flex-col w-1/2 justify-center items-center rounded-md bg-green-600 text-white font-bold p-1':'flex flex-col w-1/2 justify-center items-center rounded-md bg-yellow-500 text-white font-bold p-1'}>
                                             <p className='text-center text-sm'>Available Points:</p>  
@@ -169,7 +305,7 @@ componentDidMount() {
                                             }
                                         </div>
                                     </div>
-                                    <div>
+                                    <div className="flex justify-between flex-wrap mt-5 ">
 
                                     {
                                         Object.keys(this.state.selectedLocationHours).sort((a,b)=>{
@@ -182,7 +318,7 @@ componentDidMount() {
                                             if(days.includes(String(b))){
                                                 bDay = days.indexOf(String(b))
                                             }
-                                            console.log("a",a,aDay,"b",b,bDay)
+                                           
                                             if(aDay>bDay){
                                                 return 1
                                             }
@@ -196,7 +332,7 @@ componentDidMount() {
                                             let day = this.state.selectedLocationHours[key]
                                             if(key.includes("day")){
                                                 return (
-                                                    <div key={index}>
+                                                    <div key={index} className="bg-gray-300 p-1 rounded-sm text-center text-sm mb-3"  style={{width:"77px"}}>
                                                         <p>{key.charAt(0).toUpperCase()+key.slice(1)}</p>
                                                         {day.hourStart!=-1?this.convertHourToString(day.hourStart)+"-"+this.convertHourToString(day.hourEnd):"Closed"}
                                                     </div>
@@ -242,10 +378,9 @@ componentDidMount() {
                                     if(location.active && location.availablePoints>0){
                                         let [isOpen , hoursOpen] = this.isOpen(location.id)
                                         return(
-                                            <div key={index} className='bg-white p-5 rounded-md mb-5'
+                                            <div key={index} className='bg-white p-5 rounded-md mb-5 cursor-pointer'
                                             onClick={()=>{
                                                 let hours=this.state.hoursOpen[this.state.hourLocationIndex.indexOf(location.id)]
-                                                console.log(hours)
                                                 this.setState({selectedLocation:location,selectedLocationHours:hours,selectedLocationIsOpen:this.isOpen(location.id)[0]},()=>{})
                                             }}>
                                                 {

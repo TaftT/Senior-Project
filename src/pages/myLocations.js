@@ -865,6 +865,39 @@ async deleteLocation(location){
     })
 }
 
+async savePoints(location){
+    if(location.newAvailablePoints && location.newAvailablePoints != location.availablePoints){
+        const dataDoc = doc(db,"locations",location.id)
+        await updateDoc(dataDoc,{
+            availablePoints:location.newAvailablePoints
+        })
+        this.loadLocations()
+    }
+}
+
+async addPoints(index){
+    let newLocations = this.state.locations
+    if( !newLocations[index].newAvailablePoints){
+        newLocations[index]["newAvailablePoints"]= newLocations[index].availablePoints + 10
+    } else {
+        newLocations[index].newAvailablePoints= newLocations[index].newAvailablePoints + 10
+    }
+    this.setState({locations:newLocations})
+}
+
+async subPoints(index){
+    let newLocations = this.state.locations
+    let newPoints=0
+    if( !newLocations[index].newAvailablePoints){
+        newLocations[index]["newAvailablePoints"]= newLocations[index].availablePoints
+    }
+    if(newLocations[index].newAvailablePoints-10>0){
+        newPoints = newLocations[index].newAvailablePoints-10
+    }
+    newLocations[index]["newAvailablePoints"]=newPoints
+    this.setState({locations:newLocations})
+}
+
 componentDidMount() {
     getUser().then((user)=>{
         console.log(user)
@@ -1162,15 +1195,26 @@ componentDidMount() {
                                     <div className="flex justify-between mb-2">
                                         <button className='flex justify-center items-center rounded-md bg-sky-900 text-white font-bold p-3 w-1/3 hover:bg-sky-700'
                                             onClick={()=>{
-                                                this.setState({locationConfirmed:true})
+                                                this.subPoints(index)
                                             }}
                                         >
                                             <svg className='w-6 h-6'  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M416 256c0 17.7-14.3 32-32 32L32 288c-17.7 0-32-14.3-32-32s14.3-32 32-32l352 0c17.7 0 32 14.3 32 32z"/></svg>
                                         </button>
-                                        <div className='flex justify-center rounded-md items-center text-white bg-gray-500 w-1/3 ml-1 mr-1 text-center font-bold text-xl'>{location.availablePoints}</div>
+                                        <div className='flex justify-center rounded-md items-center text-white bg-gray-500 w-1/3 ml-1 mr-1 text-center font-bold text-xl'>
+                                            {
+                                                location.newAvailablePoints && location.newAvailablePoints != location.availablePoints?
+                                                <>
+                                                    <svg className='w-6 h-6 mr-3 cursor-pointer' onClick={()=>{this.savePoints(location)}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7C340 38.7 323.7 32 306.7 32H64zm0 96c0-17.7 14.3-32 32-32H288c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V128zM224 288a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>
+                                                    {location.newAvailablePoints}
+                                                </>
+                                                :
+                                                location.availablePoints
+                                            }
+                                            
+                                        </div>
                                         <button className='flex justify-center  items-center rounded-md bg-sky-900 text-white font-bold p-3 w-1/3 hover:bg-sky-700'
                                             onClick={()=>{
-                                                this.setState({position:{},resetPin:true,locationConfirmed:false})
+                                                this.addPoints(index)
                                             }}
                                         >
                                             <svg className='w-6 h-6' xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M240 80c0-17.7-14.3-32-32-32s-32 14.3-32 32V224H32c-17.7 0-32 14.3-32 32s14.3 32 32 32H176V432c0 17.7 14.3 32 32 32s32-14.3 32-32V288H384c17.7 0 32-14.3 32-32s-14.3-32-32-32H240V80z"/></svg>
