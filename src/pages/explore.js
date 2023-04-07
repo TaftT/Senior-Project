@@ -34,6 +34,8 @@ constructor(props) {
         absoluteOrientation:false,
         newSnap:true,
         arrived:false,
+        locationFeedBack:"",
+        buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700",
     };
 }
 
@@ -117,13 +119,11 @@ handleOrientation(event) {
     if(absolute && alpha % 1 !== 0 && beta % 1 !== 0 && gamma % 1 !== 0 && alpha<180 && beta<180 && gamma<100){
         ORIENTATIONCOUNTER+= 1
     }
-    if(ORIENTATIONCOUNTER===50){
+    if(ORIENTATIONCOUNTER===100){
         console.log(absolute,alpha,beta,gamma)
         ORIENTATIONCOUNTER=0
-        this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true},
-            ()=>{
-            console.log(this.checkLocation())
-        })
+        this.checkLocation()
+        this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true})
     }
   }
 
@@ -173,6 +173,7 @@ getLocation(){
 
 checkLocation() {
     if(this.state.selectedLocation){
+        
         const radius = 50; // 50 feet
         const earthRadius = 6371000; // meters
         const latDistance = this.toRadians(this.state.selectedLocation.latitude - this.state.latitude);
@@ -186,8 +187,15 @@ checkLocation() {
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         const distance = earthRadius * c;
         let arrived = distance <= radius
-        this.setState({arrived:arrived})
-        return arrived;
+        let locationFeedBack = ""
+        if(arrived){
+            this.setState({arrived:arrived,locationFeedBack:"Claim 10 Points",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700",})
+        } else {
+            this.setState({arrived:arrived,locationFeedBack:"",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"})
+        }
+        
+        return arrived;  
+        
     }
   }
 
@@ -246,7 +254,6 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
 
 
     render() {
-        
         return <div>
             <div className="fixed" style={{bottom:"110px", left:"12px"}}>
                 <span className="absolute flex h-5 w-5">
@@ -277,7 +284,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                             <div>
                                 <div className='flex justify-between'>
                                     <div className="w-1/6" onClick={()=>{
-                                        this.setState({selectedLocation:null})
+                                        this.setState({selectedLocation:null,locationFeedBack:""})
                                     }}>
                                         <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l128-128c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-128-128z"/></svg>
                                     </div>
@@ -293,10 +300,22 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                     </div>
                                     <Map render={this.state.selectedLocation.latitude && this.state.selectedLocation.longitude } latitude={this.state.selectedLocation.latitude} longitude={this.state.selectedLocation.longitude}/>
                                     {
-                                        this.state.arrived?
-                                            <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700'>Claim Points</button>
-                                        :
-                                            <button disabled={true} className='rounded-md bg-red-700 text-white font-bold p-3 w-full mb-5 '>You are too far from Location</button>
+                                        this.state.selectedLocationIsOpen?
+                                        <button className={this.state.buttonClass}
+                                        onClick={()=>{
+                                            if(this.state.selectedLocation){      
+                                                if(this.state.arrived){
+                                                    this.setState({locationFeedBack:"Thanks for visiting",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-green-600"})
+                                                }else {
+                                                    this.setState({locationFeedBack:"Please Move Closer", buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-yellow-500"})
+                                                }
+                                            }
+                                        }}
+                                    >{this.state.locationFeedBack?this.state.locationFeedBack:"Visit to Claim 10 Points"}</button>
+                                    :
+                                    <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
+                                        
+                                    >CLOSED Visit later to Claim 10 points</button>
                                     }
                                     <div className="flex justify-between">
                                         <div className={this.state.selectedLocation.availablePoints>=50?'flex flex-col w-1/2 justify-center items-center rounded-md bg-green-600 text-white font-bold p-1':'flex flex-col w-1/2 justify-center items-center rounded-md bg-yellow-500 text-white font-bold p-1'}>
