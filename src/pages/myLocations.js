@@ -52,11 +52,12 @@ constructor(props) {
                 placeHolder:"Description..."
                 },
             radius:{
-                type:"select",
-                value:["Small","Medium","Large"],
-                label:["Small","Medium","Large"],
-                placeHolder:"Geofence Radius",
-                selected:"Medium",
+                type:"number",
+                value:0,
+                min:0,
+                max:500,
+                placeHolder:"Geofence Radius in feet",
+                label:"Geofence Radius in feet"
                 },
             website:{
                 type:"text",
@@ -256,11 +257,12 @@ clearForm(){
                 placeHolder:"Description..."
                 },
             radius:{
-                type:"select",
-                value:["Small","Medium","Large"],
-                label:["Small","Medium","Large"],
-                placeHolder:"Geofence Radius",
-                selected:"Medium",
+                type:"number",
+                value:0,
+                min:0,
+                max:500,
+                placeHolder:"Geofence Radius in feet",
+                label:"Geofence Radius in feet"
                 },
             website:{
                 type:"text",
@@ -474,11 +476,12 @@ autoFillFor(location){
                     placeHolder:"Description..."
                     },
                 radius:{
-                    type:"select",
-                    value:["Small","Medium","Large"],
-                    label:["Small","Medium","Large"],
-                    placeHolder:"Geofence Radius",
-                    selected:location.radius,
+                    type:"number",
+                    value:location.radius,
+                    min:0,
+                    max:500,
+                    placeHolder:"Geofence Radius in feet",
+                    label:"Geofence Radius in feet"
                     },
                 website:{
                     type:"text",
@@ -996,7 +999,9 @@ componentDidMount() {
                                                         this.saveEditedLocation(data,this.state.selectedLocation.id)
                                                     }
                                                     
-                                                    this.setState({locationInputScreen:false,buttonDisable:false})
+                                                    this.setState({locationInputScreen:false,buttonDisable:false},()=>{
+                                                        this.loadLocations()
+                                                    })
                                                     console.log(data)
                                                 }
                 

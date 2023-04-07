@@ -174,7 +174,7 @@ getLocation(){
 checkLocation() {
     if(this.state.selectedLocation && !this.state.arrived){
         
-        const radius = 50; // 50 feet
+        const radius = this.state.selectedLocation.radius; // 50 feet
         const earthRadius = 6371000; // meters
         const latDistance = this.toRadians(this.state.selectedLocation.latitude - this.state.latitude);
         const lonDistance = this.toRadians(this.state.selectedLocation.longitude - this.state.longitude);

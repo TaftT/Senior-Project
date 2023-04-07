@@ -111,6 +111,14 @@ constructor(props) {
                             }
                             
                         }
+                    }else if(field.type==='number'){
+                        // console.log(field)
+                        if(field.selected){
+                            returnVals[key]=field.selected
+                        } else {
+                            returnVals[key]=field.value[0]
+                        }
+                        
                     } else if(field.type==='select'){
                         // console.log(field)
                         if(field.selected){
@@ -138,11 +146,22 @@ constructor(props) {
                 {
                     Object.keys(this.props.fields).map((name,index)=>{
                         let field =this.props.fields[name]
-                        if(field.type==='text' || field.type==='password' || field.type==='number' || field.type==='email'){
+                        if(field.type==='text' || field.type==='password' || field.type==='email'){
                             return(
                                 <div key={index} className="mb-3">
                                     {field.label?<label className="font-bold text-sm">{field.label}</label> :null }
                                     <input className='w-full p-2 rounded-md border-2' name={name} type={field.type} defaultValue={field.value} placeholder={field.placeHolder?field.placeHolder:null} onChange={(e)=>{
+                                        let newFeilds = this.state.copyFields;
+                                        newFeilds[name].value = e.target.value;
+                                        this.setState({copyFields:newFeilds})
+                                    }}/>
+                                </div>
+                            )
+                        } else if(field.type==='number'){
+                            return(
+                                <div key={index} className="mb-3">
+                                    {field.label?<label className="font-bold text-sm">{field.label}</label> :null }
+                                    <input className='w-full p-2 rounded-md border-2' name={name} type="number" defaultValue={field.value} max={field.max?field.max:null} min={field.min?field.min:null} placeholder={field.placeHolder?field.placeHolder:null} onChange={(e)=>{
                                         let newFeilds = this.state.copyFields;
                                         newFeilds[name].value = e.target.value;
                                         this.setState({copyFields:newFeilds})
