@@ -814,11 +814,12 @@ async saveEditedLocation(data,id){
         })
         const hoursColection = collection(db,"hoursOpen")
         const q = query(hoursColection,where("locationId", "==", id))
-        getDocs(q).then(async (data)=>{
-            const filteredData = data.docs.map((doc)=>({
+        getDocs(q).then(async (hourData)=>{
+            const filteredData = hourData.docs.map((doc)=>({
                 ...doc.data(),
                 id: doc.id
             }))
+            console.log(data)
             const openHoursDoc = doc(db,"hoursOpen",filteredData[0].id)
             let newHours = await updateDoc(openHoursDoc,{
                 sunday:data.sunday,
@@ -995,7 +996,7 @@ componentDidMount() {
                                                         this.saveEditedLocation(data,this.state.selectedLocation.id)
                                                     }
                                                     
-                                                    this.setState({locationInputScreen:false})
+                                                    this.setState({locationInputScreen:false,buttonDisable:false})
                                                     console.log(data)
                                                 }
                 

@@ -172,7 +172,7 @@ getLocation(){
 }
 
 checkLocation() {
-    if(this.state.selectedLocation){
+    if(this.state.selectedLocation && !this.state.arrive){
         
         const radius = 50; // 50 feet
         const earthRadius = 6371000; // meters
