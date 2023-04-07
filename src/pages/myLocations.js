@@ -925,7 +925,7 @@ componentDidMount() {
                         <button className='rounded-md bg-gray-600 text-white font-bold p-3 w-1/4 mb-5 hover:bg-gray-400' 
                             onClick={()=>{
                                 this.clearForm().then(()=>{
-                                    this.setState({locationInputScreen:false})
+                                    this.setState({locationInputScreen:false,arrived:false})
                                 })
                             }}
                         >Back</button>
