@@ -161,7 +161,7 @@ constructor(props) {
                             return(
                                 <div key={index} className="mb-3">
                                     {field.label?<label className="font-bold text-sm">{field.label}</label> :null }
-                                    <input className='w-full p-2 rounded-md border-2' name={name} type="number" defaultValue={field.value} max={field.max?field.max:null} min={field.min?field.min:null} placeholder={field.placeHolder?field.placeHolder:null} onChange={(e)=>{
+                                    <input className='w-full p-2 rounded-md border-2' name={name} type="number" defaultValue={field.value} max={field.max?field.max:null} min={field.min?field.min:null} step={field.step?field.step:null} placeholder={field.placeHolder?field.placeHolder:null} onChange={(e)=>{
                                         let newFeilds = this.state.copyFields;
                                         newFeilds[name].value = e.target.value;
                                         this.setState({copyFields:newFeilds})

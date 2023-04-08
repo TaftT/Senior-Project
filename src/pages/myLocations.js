@@ -53,9 +53,10 @@ constructor(props) {
                 },
             radius:{
                 type:"number",
-                value:0,
-                min:0,
+                value:10,
+                min:10,
                 max:500,
+                step:10,
                 placeHolder:"Geofence Radius in feet",
                 label:"Geofence Radius in feet"
                 },
@@ -258,9 +259,10 @@ clearForm(){
                 },
             radius:{
                 type:"number",
-                value:0,
-                min:0,
+                value:10,
+                min:10,
                 max:500,
+                step:10,
                 placeHolder:"Geofence Radius in feet",
                 label:"Geofence Radius in feet"
                 },
@@ -478,8 +480,9 @@ autoFillFor(location){
                 radius:{
                     type:"number",
                     value:location.radius,
-                    min:0,
+                    min:10,
                     max:500,
+                    step:10,
                     placeHolder:"Geofence Radius in feet",
                     label:"Geofence Radius in feet"
                     },
