@@ -22,6 +22,7 @@ constructor(props) {
         selectedLocationIsOpen:false,
         selectedLocationHours:[],
         gettingLocation:false,
+        cannotgettingLocation:false,
         accuracy:0,
         latitude:0,
         longitude:0,
@@ -136,10 +137,10 @@ getLocation(){
       };
     const success = (pos) => {
         const crd = pos.coords;
-        if((this.state.latitude != crd.latitude || this.state.longitude != crd.longitude)){
-            
+        console.log("getLocation")
+        if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
                 this.setState({
-                    gettingLocation:true,
+                    gettingLocation:false,
                     newSnap:false,
                     accuracy:crd.accuracy,
                     latitude:crd.latitude,
@@ -151,25 +152,28 @@ getLocation(){
                 },()=>{
                     this.checkLocation()
                 })
-        }   
-
-        return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
-    }
+        } else {
+            console.log("Closer")
+            this.setState({locationFeedBack:"Please Move Closer"})
+        }
+    } 
     const error = (err) => {
+        this.setState({cannotgettingLocation:true})
         console.warn(`ERROR(${err.code}): ${err.message}`);
     }
     let GEOID = navigator.geolocation.getCurrentPosition(success, error, options);
     ORIENTATIONCOUNTER=0
     LOCATIONCOUNTER=0
     window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
-    this.setState({GEOID:GEOID})
+    this.setState({gettingLocation:true,GEOID:GEOID})
 
 }
 
 checkLocation() {
     if(this.state.selectedLocation){
+        console.log("checkLocation")
         
-        const radius = this.state.selectedLocation.radius; // 50 feet
+        const radius = this.state.selectedLocation.radius; // feet
         const earthRadius = 6371000; // meters
         const latDistance = this.toRadians(this.state.selectedLocation.latitude - this.state.latitude);
         const lonDistance = this.toRadians(this.state.selectedLocation.longitude - this.state.longitude);
@@ -186,7 +190,7 @@ checkLocation() {
         if(arrived){
             this.setState({arrived:arrived,locationFeedBack:"Claim 10 Points",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700",})
         } else {
-            this.setState({arrived:arrived,locationFeedBack:"",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"})
+            this.setState({arrived:arrived,locationFeedBack:"Please Move",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"})
         }
         
         return arrived;  
@@ -200,9 +204,6 @@ componentDidMount() {
         this.setState({user:user},()=>{
             this.loadLocations().then(()=>{
                 this.getLocation();
-                setInterval(() => {
-                    this.getLocation();
-                  }, 2000);
                 this.loadAllHours().then(()=>{
                     this.setState({loading:false})
                 })
@@ -313,21 +314,19 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                     <Map render={this.state.selectedLocation.latitude && this.state.selectedLocation.longitude } latitude={this.state.selectedLocation.latitude} longitude={this.state.selectedLocation.longitude}/>
                                     
                                     {
-                                        this.state.gettingLocation?
+                                        !this.state.cannotgettingLocation?
                                         <>
                                             {
                                                 this.state.selectedLocationIsOpen?
                                                 <button className={this.state.buttonClass}
                                                 onClick={()=>{
-                                                    if(this.state.selectedLocation){      
-                                                        if(this.state.arrived){
-                                                            this.setState({locationFeedBack:"Thanks for visiting",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-green-600"})
-                                                        }else {
-                                                            this.setState({locationFeedBack:"Please Move Closer", buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-yellow-500"})
-                                                        }
+                                                    if(this.state.selectedLocation){   
+                                                        console.log("There")   
+                                                        this.getLocation();
+                                                        
                                                     }
                                                 }}
-                                            >{this.state.locationFeedBack?this.state.locationFeedBack:"Visit to Claim 10 Points"}</button>
+                                            >{this.state.locationFeedBack?this.state.locationFeedBack: "Verify Location to Claim 10 Points"}</button>
                                             :
                                             <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
                                             >CLOSED Visit later to Claim 10 points</button>

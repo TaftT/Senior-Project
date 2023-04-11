@@ -28,6 +28,7 @@ constructor(props) {
         arrived:false,
         locationButtonColor:"bg-green-600 hover:bg-green-700",
         gettingLocation:false,
+        cannotgettingLocation:false,
         locations:[],
         locationInputScreen:false,
         buttonDisable:false,
@@ -865,7 +866,8 @@ toRadians(degrees) {
 
 
   checkLocation() {
-    if(this.state.position!=={}){
+    
+        console.log("check")
         
         const radius = this.state.radius; // 50 feet
         const earthRadius = 6371000; // meters
@@ -880,6 +882,7 @@ toRadians(degrees) {
         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         const distance = earthRadius * c;
         let arrived = distance <= radius
+        console.log(arrived)
         if(arrived){
             this.setState({arrived:arrived,locationButtonColor:"bg-green-600 hover:bg-green-700",})
         } else {
@@ -887,8 +890,7 @@ toRadians(degrees) {
         }
         
         return arrived;  
-        
-    }
+
   }
 
 //   checkLocation() {
@@ -939,33 +941,36 @@ toRadians(degrees) {
   }
 
 getLocation(){
-    const options = {
-        enableHighAccuracy: true,
-        maximumAge: 0,
-      };
-    const success = (pos) => {
-        const crd = pos.coords;
-        console.log(crd.latitude,crd.longitude)
-        if((this.state.latitude != crd.latitude || this.state.longitude != crd.longitude)&&(this.state.latitude+0.00000375 <= crd.latitude || this.state.latitude-0.00000375 >= crd.latitude || this.state.longitude+0.00000375 <= crd.longitude || this.state.longitude-0.00000375 >= crd.longitude)){
-            console.log("saved")
+    return new Promise(async (resolve, reject) =>  {
+        const options = {
+            enableHighAccuracy: true,
+            maximumAge: 0,
+          };
+        const success = (pos) => {
+            const crd = pos.coords;
+            console.log("getLocation")
+          
             this.setState({
-                gettingLocation:true,
-                accuracy:crd.accuracy,
-                latitude:crd.latitude,
-                longitude:crd.longitude,
-                altitude:crd.altitude,
-            },()=>{
-                this.checkLocation()
-            })  
-        }   
-        return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
-    }
-    const error = (err) => {
-        console.warn(`ERROR(${err.code}): ${err.message}`);
-    }
-    let GEOID = navigator.geolocation.watchPosition(success, error, options);
-    this.setState({GEOID:GEOID})
+            gettingLocation:true,
+            accuracy:crd.accuracy,
+            latitude:crd.latitude,
+            longitude:crd.longitude,
+            altitude:crd.altitude,
+        },()=>{
+            resolve(true)
+        })  
+           
+        }
+        const error = (err) => {
+            console.warn(`ERROR(${err.code}): ${err.message}`);
+            this.setState({cannotgettingLocation:true})
+            
+            reject(err)
+        }
+        let GEOID = navigator.geolocation.getCurrentPosition(success, error, options);
+        this.setState({GEOID:GEOID})
 
+    })
 }
 
 
@@ -1058,16 +1063,22 @@ componentDidMount() {
                                 }
                                 }}/> */}
                                 {
-                                    this.state.gettingLocation?
+                                    !this.state.cannotgettingLocation?
                                     <button className="flex mb-5 justify-center items-center rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5'"
                                         onClick={()=>{
-                                            this.setState({position:{
-                                                latitude:this.state.latitude,
-                                                longitude:this.state.longitude,
-                                                altitude:this.state.altitude,
-                                            }},
-                                            ()=>{
-                                                console.log(this.state.position)
+                                            this.getLocation().then(()=>{
+                                                this.setState({locationConfirmed:false,
+                                                    newLocationPin:this.state.editing,
+                                                    position:{
+                                                    latitude:this.state.latitude,
+                                                    longitude:this.state.longitude,
+                                                    altitude:this.state.altitude,
+                                                    
+                                                }},
+                                                ()=>{
+                                                    this.checkLocation()
+                                                    console.log(this.state.position)
+                                                })
                                             })
                                         }}>Pin My location</button>
                                 :
@@ -1082,7 +1093,11 @@ componentDidMount() {
                             <div className="flex mb-5">
                                     <button className={'flex justify-center items-center rounded-md text-white font-bold p-3 w-1/2 '+this.state.locationButtonColor}
                                     onClick={()=>{
-                                        this.setState({locationConfirmed:true})
+                                        this.getLocation().then(()=>{
+                                             this.checkLocation()
+                                            this.setState({locationConfirmed:true})
+                                        })
+                                        
                                     }}>
                                         {
                                             this.state.locationConfirmed?
