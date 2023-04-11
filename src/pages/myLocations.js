@@ -749,7 +749,7 @@ async locationSave(data){
             ownerUserId:this.state.user.uid,
             websiteURL:data.website,
             totalVisits:0,
-            radius:data.radius,
+            radius:this.state.radius,
             placeId:data.placeId,
             category:data.category
         })
@@ -862,41 +862,22 @@ toRadians(degrees) {
   }
 
 
-//   checkLocation() {
-//     if(this.state.position!=={}){
-        
-//         const radius = this.state.radius; // 50 feet
-//         const earthRadius = 6371000; // meters
-//         const latDistance = this.toRadians(this.state.position.latitude - this.state.latitude);
-//         const lonDistance = this.toRadians(this.state.position.longitude - this.state.longitude);
-//         const a =
-//         Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
-//         Math.cos(this.toRadians(this.state.latitude)) *
-//             Math.cos(this.toRadians(this.state.longitude)) *
-//             Math.sin(lonDistance / 2) *
-//             Math.sin(lonDistance / 2);
-//         const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//         const distance = earthRadius * c;
-//         let arrived = distance <= radius
-//         if(arrived){
-//             this.setState({arrived:arrived,locationButtonColor:"bg-green-600 hover:bg-green-700",})
-//         } else {
-//             this.setState({arrived:arrived,locationButtonColor:"bg-red-700 hover:bg-red-800"})
-//         }
-        
-//         return arrived;  
-        
-//     }
-//   }
-
   checkLocation() {
     if(this.state.position!=={}){
-        let currentLongitude = this.state.longitude //x
-        let currentLatitude = this.state.latitude //y
-        const radius = this.state.radius; // 50 feet
-        const distance = Math.sqrt((this.state.position.longitude - currentLongitude) ** 2 + (this.state.position.latitude - currentLatitude) ** 2);
-        let arrived = distance <= radius*0.000001;
         
+        const radius = this.state.radius; // 50 feet
+        const earthRadius = 6371000; // meters
+        const latDistance = this.toRadians(this.state.position.latitude - this.state.latitude);
+        const lonDistance = this.toRadians(this.state.position.longitude - this.state.longitude);
+        const a =
+        Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+        Math.cos(this.toRadians(this.state.latitude)) *
+            Math.cos(this.toRadians(this.state.longitude)) *
+            Math.sin(lonDistance / 2) *
+            Math.sin(lonDistance / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = earthRadius * c;
+        let arrived = distance <= radius
         if(arrived){
             this.setState({arrived:arrived,locationButtonColor:"bg-green-600 hover:bg-green-700",})
         } else {
@@ -907,6 +888,25 @@ toRadians(degrees) {
         
     }
   }
+
+//   checkLocation() {
+//     if(this.state.position!=={}){
+//         let currentLongitude = this.state.longitude //x
+//         let currentLatitude = this.state.latitude //y
+//         const radius = this.state.radius; // 50 feet
+//         const distance = Math.sqrt((this.state.position.longitude - currentLongitude) ** 2 + (this.state.position.latitude - currentLatitude) ** 2);
+//         let arrived = distance <= radius*0.00001;
+        
+//         if(arrived){
+//             this.setState({arrived:arrived,locationButtonColor:"bg-green-600 hover:bg-green-700",})
+//         } else {
+//             this.setState({arrived:arrived,locationButtonColor:"bg-red-700 hover:bg-red-800"})
+//         }
+        
+//         return arrived;  
+        
+//     }
+//   }
 
   sortLocationsByDistance(currentLat, currentLong, locations) {
     return new Promise(async (resolve, reject) =>  {
