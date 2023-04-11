@@ -291,13 +291,22 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                     <h1 className='text-center w-5/6 font-bold text-3xl mb-5'>Location Info</h1>
                                 </div>
                                 <div  className='bg-white p-5 rounded-md mb-5'>
-                                    <div className='flex'>
-                                        <div className='bg-gray-300 h-16 w-1/2 rounded-md mb-4' style={{backgroundImage:`url('${this.state.selectedLocation.logoURL}')`,backgroundRepeat:"no-repeat",backgroundPosition:"center", backgroundSize:"cover"}}></div>
+                                    {
+                                        this.state.selectedLocation.logoURL?
+                                        <div className='flex'>
+                                            <div className='bg-gray-300 h-16 w-1/2 rounded-md mb-4' style={{backgroundImage:`url('${this.state.selectedLocation.logoURL}')`,backgroundRepeat:"no-repeat",backgroundPosition:"center", backgroundSize:"cover"}}></div>
+                                            <div className='w-1/2 p-1'>
+                                                <h2 className='font-bold text-l md:text-xl'>{this.state.selectedLocation.name}</h2>
+                                                <p>{this.state.selectedLocation.category}</p>
+                                            </div>
+                                        </div>
+                                        :
                                         <div className='w-1/2 p-1'>
                                             <h2 className='font-bold text-l md:text-xl'>{this.state.selectedLocation.name}</h2>
                                             <p>{this.state.selectedLocation.category}</p>
                                         </div>
-                                    </div>
+                                    }
+                                    
                                     <Map render={this.state.selectedLocation.latitude && this.state.selectedLocation.longitude } latitude={this.state.selectedLocation.latitude} longitude={this.state.selectedLocation.longitude}/>
                                     
                                     {
@@ -430,13 +439,22 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                                     :
                                                     <></>
                                                 }
-                                                <div className='flex'>
-                                                    <div className='bg-gray-300 h-16 w-1/2 rounded-md mb-4' style={{backgroundImage:`url('${location.logoURL}')`,backgroundRepeat:"no-repeat",backgroundPosition:"center", backgroundSize:"cover"}}></div>
+                                                {
+                                                    location.logoURL?
+                                                    <div className='flex'>
+                                                        <div className='bg-gray-300 h-16 w-1/2 rounded-md mb-4' style={{backgroundImage:`url('${location.logoURL}')`,backgroundRepeat:"no-repeat",backgroundPosition:"center", backgroundSize:"cover"}}></div>
+                                                        <div className='w-1/2 p-1'>
+                                                            <h2 className='font-bold text-l md:text-xl'>{location.name}</h2>
+                                                            <p>{location.category}</p>
+                                                        </div>
+                                                    </div>
+                                                    :
                                                     <div className='w-1/2 p-1'>
                                                         <h2 className='font-bold text-l md:text-xl'>{location.name}</h2>
                                                         <p>{location.category}</p>
                                                     </div>
-                                                </div>
+                                                }
+                                                
 
                                                 <div className="flex justify-between">
                                                     <div className={location.availablePoints>=50?'flex flex-col w-1/2 justify-center items-center rounded-md bg-green-600 text-white font-bold p-1':'flex flex-col w-1/2 justify-center items-center rounded-md bg-yellow-500 text-white font-bold p-1'}>

@@ -23,6 +23,7 @@ constructor(props) {
         latitude:0,
         longitude:0,
         altitude:0,
+        radius:10,
         GEOID:null,
         arrived:false,
         locationButtonColor:"bg-green-600 hover:bg-green-700",
@@ -57,15 +58,6 @@ constructor(props) {
                 value:"",
                 label:"Description*",
                 placeHolder:"Description..."
-                },
-            radius:{
-                type:"number",
-                value:10,
-                min:5,
-                max:500,
-                step:5,
-                placeHolder:"Geofence Radius in feet",
-                label:"Geofence Radius in feet"
                 },
             website:{
                 type:"text",
@@ -263,15 +255,6 @@ clearForm(){
                 value:"",
                 label:"Description*",
                 placeHolder:"Description..."
-                },
-            radius:{
-                type:"number",
-                value:10,
-                min:5,
-                max:500,
-                step:5,            
-                placeHolder:"Geofence Radius in feet",
-                label:"Geofence Radius in feet"
                 },
             website:{
                 type:"text",
@@ -484,15 +467,6 @@ autoFillFor(location){
                     label:"Description*",
                     placeHolder:"Description..."
                     },
-                radius:{
-                    type:"number",
-                    value:location.radius,
-                    min:5,
-                    max:500,
-                    step:5,
-                    placeHolder:"Geofence Radius in feet",
-                    label:"Geofence Radius in feet"
-                    },
                 website:{
                     type:"text",
                     label:"Website Url",
@@ -657,7 +631,11 @@ autoFillFor(location){
             this.setState({
                 position:newPosition,
                 formFeilds:newForm,
-                editing:true
+                editing:true,
+                radius:location.radius,
+                logoURL:location.logoURL,
+                img1URL:location.img1URL,
+                img2URL:location.img2URL,
             },()=>{
                 console.log("there")
                 resolve(true)
@@ -795,8 +773,8 @@ async locationSave(data){
 
 async saveEditedLocation(data,id){
     try{
-        let img1URL=this.state.img2URL
-        let img2URL=this.state.img1URL
+        let img1URL=this.state.img1URL 
+        let img2URL=this.state.img2URL
         let logoURL=this.state.logoURL
         
         if(this.state.logoFile && this.state.logoURL !==""){
@@ -821,7 +799,7 @@ async saveEditedLocation(data,id){
             name:data.locationName,
             websiteURL:data.website,
             totalVisits:0,
-            radius:data.radius,
+            radius:this.state.radius,
             placeId:data.placeId,
             category:data.category
         })
@@ -885,7 +863,7 @@ toRadians(degrees) {
 checkLocation() {
     if(this.state.position!=={}){
         
-        const radius = this.state.selectedLocation.radius; // 50 feet
+        const radius = this.state.radius; // 50 feet
         const earthRadius = 6371000; // meters
         const latDistance = this.toRadians(this.state.position.latitude - this.state.latitude);
         const lonDistance = this.toRadians(this.state.position.longitude - this.state.longitude);
@@ -1100,6 +1078,15 @@ componentDidMount() {
                             :
                             <></> 
                             }
+                 
+                            <div  className="mb-3">
+                                <label className="font-bold text-sm">Geofence Radius in feet</label>
+                                <input className='w-full p-2 rounded-md border-2' name="Radius" type="number" defaultValue={this.state.radius} max={500} min={5} step={5} placeholder="Geofence Radius in feet" 
+                                onChange={(e)=>{
+                                
+                                    this.setState({radius:Number(e.target.value)})
+                                }}/>
+                            </div>
                             <Form id="createLocation" fields={this.state.formFeilds} callBack={(data)=>{
                                 this.setState({errorMsg:"",buttonDisable:true})
                                 console.log(this.state.position)
