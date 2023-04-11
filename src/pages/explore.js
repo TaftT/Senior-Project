@@ -199,9 +199,10 @@ componentDidMount() {
     getUser().then((user)=>{
         this.setState({user:user},()=>{
             this.loadLocations().then(()=>{
+                this.getLocation();
                 setInterval(() => {
                     this.getLocation();
-                  }, 5000);
+                  }, 2000);
                 this.loadAllHours().then(()=>{
                     this.setState({loading:false})
                 })
