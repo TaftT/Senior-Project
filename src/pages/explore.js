@@ -136,7 +136,7 @@ getLocation(){
       };
     const success = (pos) => {
         const crd = pos.coords;
-        if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
+        if((this.state.latitude != crd.latitude || this.state.longitude != crd.longitude)&&(this.state.latitude+0.000075 <= crd.latitude || this.state.latitude-0.000075 >= crd.latitude || this.state.longitude+0.000075 <= crd.longitude || this.state.longitude-0.000075 >= crd.longitude)){
             
                 this.setState({
                     gettingLocation:true,
@@ -150,7 +150,6 @@ getLocation(){
                     speed:crd.speed,
                 },()=>{
                     this.checkLocation()
-                    
                 })
         }   
 
@@ -314,23 +313,22 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                         this.state.gettingLocation?
                                         <>
                                             {
-                                            this.state.selectedLocationIsOpen?
-                                            <button className={this.state.buttonClass}
-                                            onClick={()=>{
-                                                if(this.state.selectedLocation){      
-                                                    if(this.state.arrived){
-                                                        this.setState({locationFeedBack:"Thanks for visiting",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-green-600"})
-                                                    }else {
-                                                        this.setState({locationFeedBack:"Please Move Closer", buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-yellow-500"})
+                                                this.state.selectedLocationIsOpen?
+                                                <button className={this.state.buttonClass}
+                                                onClick={()=>{
+                                                    if(this.state.selectedLocation){      
+                                                        if(this.state.arrived){
+                                                            this.setState({locationFeedBack:"Thanks for visiting",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-green-600"})
+                                                        }else {
+                                                            this.setState({locationFeedBack:"Please Move Closer", buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-yellow-500"})
+                                                        }
                                                     }
-                                                }
-                                            }}
-                                        >{this.state.locationFeedBack?this.state.locationFeedBack:"Visit to Claim 10 Points"}</button>
-                                        :
-                                        <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
-                                            
-                                        >CLOSED Visit later to Claim 10 points</button>
-                                        }
+                                                }}
+                                            >{this.state.locationFeedBack?this.state.locationFeedBack:"Visit to Claim 10 Points"}</button>
+                                            :
+                                            <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
+                                            >CLOSED Visit later to Claim 10 points</button>
+                                            }
                                         </>
                                         :
                                         <button disabled={true} className="flex flex-col mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full mb-5'"

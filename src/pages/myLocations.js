@@ -945,7 +945,9 @@ getLocation(){
       };
     const success = (pos) => {
         const crd = pos.coords;
-        if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
+        console.log(crd.latitude,crd.longitude)
+        if((this.state.latitude != crd.latitude || this.state.longitude != crd.longitude)&&(this.state.latitude+0.0000075 <= crd.latitude || this.state.latitude-0.0000075 >= crd.latitude || this.state.longitude+0.0000075 <= crd.longitude || this.state.longitude-0.0000075 >= crd.longitude)){
+            console.log("saved")
             this.setState({
                 gettingLocation:true,
                 accuracy:crd.accuracy,

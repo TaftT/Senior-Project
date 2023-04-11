@@ -38,7 +38,7 @@ handleOrientation(event) {
     if(absolute && alpha % 1 !== 0 && beta % 1 !== 0 && gamma % 1 !== 0 && alpha<180 && beta<180 && gamma<100){
         ORIENTATIONCOUNTER+= 1
     }
-    if(ORIENTATIONCOUNTER===50){
+    if(ORIENTATIONCOUNTER===25){
         console.log(absolute,alpha,beta,gamma)
         let newError=this.state.error + absolute+alpha+beta+gamma 
         this.setState({error:newError})
