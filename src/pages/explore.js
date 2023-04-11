@@ -48,10 +48,12 @@ loadLocations(){
                 ...doc.data(),
                 id: doc.id
             }))
-            this.setState({locations:filteredData},()=>{
-                
-                resolve(true)
+            this.sortLocationsByDistance(this.state.latitude, this.state.longitude, filteredData).then((locations)=>{
+                this.setState({locations:locations},()=>{
+                        resolve(true)
+                })
             })
+            
         }).catch((error)=>{
             console.log(error)
         })
@@ -148,11 +150,7 @@ getLocation(){
                     speed:crd.speed,
                 },()=>{
                     this.checkLocation()
-                    this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
-                        this.setState({
-                            locations:locations,
-                        })
-                    })
+                    
                 })
         }   
 

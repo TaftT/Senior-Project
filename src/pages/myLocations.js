@@ -656,8 +656,10 @@ loadLocations(){
                 ...doc.data(),
                 id: doc.id
             }))
-            this.setState({locations:filteredData},()=>{
-                console.log(this.state.locations)
+            this.sortLocationsByDistance(this.state.latitude, this.state.longitude, filteredData).then((locations)=>{
+                this.setState({locations:locations},()=>{
+                        resolve(true)
+                })
             })
         }).catch((error)=>{
             console.log(error)
@@ -952,13 +954,7 @@ getLocation(){
                 altitude:crd.altitude,
             },()=>{
                 this.checkLocation()
-                this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
-                    this.setState({
-                        locations:locations,
-                    })
-                })
-            })
-            
+            })  
         }   
         return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
     }
