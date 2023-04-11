@@ -188,9 +188,9 @@ checkLocation() {
         let arrived = distance <= radius
         let locationFeedBack = ""
         if(arrived){
-            this.setState({arrived:arrived,locationFeedBack:"Claim 10 Points",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700",})
+            this.setState({arrived:arrived,locationFeedBack:"Arrived",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-green-600 hover:bg-green-700",})
         } else {
-            this.setState({arrived:arrived,locationFeedBack:"Please Move",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"})
+            this.setState({arrived:arrived,locationFeedBack:"Please Move Closer",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-yellow-500 hover:bg-yellow-400"})
         }
         
         return arrived;  
@@ -277,6 +277,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
             <p>alpha:{this.state.alpha}</p>
             <p>beta:{this.state.beta}</p>
             <p>gamma:{this.state.gamma}</p>
+            <Map render={true} latitude={this.state.latitude} longitude={this.state.longitude}/>
             
             <main className='p-5 w-full'>
             {this.state.loading?
