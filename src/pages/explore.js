@@ -1,6 +1,6 @@
 import React from 'react';
 import {db,getUser} from '../config/firebase'
-import {getDocs,collection, getD} from "firebase/firestore"
+import {getDocs,collection} from "firebase/firestore"
 import Nav from '../components/nav'
 import dayjs from 'dayjs'
 import Map from '../components/map'
@@ -167,7 +167,7 @@ getLocation(){
 }
 
 checkLocation() {
-    if(this.state.selectedLocation && !this.state.arrived){
+    if(this.state.selectedLocation){
         
         const radius = this.state.selectedLocation.radius; // 50 feet
         const earthRadius = 6371000; // meters

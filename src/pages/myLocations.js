@@ -24,6 +24,8 @@ constructor(props) {
         longitude:0,
         altitude:0,
         GEOID:null,
+        arrived:false,
+        locationButtonColor:"bg-green-600 hover:bg-green-700",
         gettingLocation:false,
         locations:[],
         locationInputScreen:false,
@@ -59,9 +61,9 @@ constructor(props) {
             radius:{
                 type:"number",
                 value:10,
-                min:10,
+                min:5,
                 max:500,
-                step:10,
+                step:5,
                 placeHolder:"Geofence Radius in feet",
                 label:"Geofence Radius in feet"
                 },
@@ -265,9 +267,9 @@ clearForm(){
             radius:{
                 type:"number",
                 value:10,
-                min:10,
+                min:5,
                 max:500,
-                step:10,
+                step:5,            
                 placeHolder:"Geofence Radius in feet",
                 label:"Geofence Radius in feet"
                 },
@@ -485,9 +487,9 @@ autoFillFor(location){
                 radius:{
                     type:"number",
                     value:location.radius,
-                    min:10,
+                    min:5,
                     max:500,
-                    step:10,
+                    step:5,
                     placeHolder:"Geofence Radius in feet",
                     label:"Geofence Radius in feet"
                     },
@@ -877,6 +879,64 @@ async deleteLocation(location){
     })
 }
 
+toRadians(degrees) {
+    return degrees * (Math.PI / 180);
+  }
+checkLocation() {
+    if(this.state.position!=={}){
+        
+        const radius = this.state.selectedLocation.radius; // 50 feet
+        const earthRadius = 6371000; // meters
+        const latDistance = this.toRadians(this.state.position.latitude - this.state.latitude);
+        const lonDistance = this.toRadians(this.state.position.longitude - this.state.longitude);
+        const a =
+        Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+        Math.cos(this.toRadians(this.state.latitude)) *
+            Math.cos(this.toRadians(this.state.longitude)) *
+            Math.sin(lonDistance / 2) *
+            Math.sin(lonDistance / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = earthRadius * c;
+        let arrived = distance <= radius
+        if(arrived){
+            this.setState({arrived:arrived,locationButtonColor:"bg-green-600 hover:bg-green-700",})
+        } else {
+            this.setState({arrived:arrived,locationButtonColor:"bg-red-700 hover:bg-red-800"})
+        }
+        
+        return arrived;  
+        
+    }
+  }
+
+  sortLocationsByDistance(currentLat, currentLong, locations) {
+    return new Promise(async (resolve, reject) =>  {
+        // Loop through each location and calculate the distance to the current location
+        const sortedLocations = locations.map(location => {
+            const lat1 = this.toRadians(currentLat);
+            const lon1 = this.toRadians(currentLong);
+            const lat2 = this.toRadians(location.latitude);
+            const lon2 = this.toRadians(location.longitude);
+
+            const dlon = lon2 - lon1;
+            const dlat = lat2 - lat1;
+
+            const a =
+            Math.pow(Math.sin(dlat / 2), 2) +
+            Math.cos(lat1) * Math.cos(lat2) * Math.pow(Math.sin(dlon / 2), 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = 6371 * c; // Earth's radius is approximately 6,371 kilometers
+
+            return { ...location, distance };
+        });
+
+        // Sort the locations by distance
+        sortedLocations.sort((a, b) => a.distance - b.distance);
+
+        resolve(sortedLocations);
+    }) 
+  }
+
 getLocation(){
     const options = {
         enableHighAccuracy: true,
@@ -885,15 +945,17 @@ getLocation(){
     const success = (pos) => {
         const crd = pos.coords;
         if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
-            this.setState({
-                gettingLocation:true,
-                accuracy:crd.accuracy,
-                latitude:crd.latitude,
-                longitude:crd.longitude,
-                altitude:crd.altitude,
-            },()=>{
-                console.log(this.state.longitude,this.state.latitude)
-
+            this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
+                this.setState({
+                    locations:locations,
+                    gettingLocation:true,
+                    accuracy:crd.accuracy,
+                    latitude:crd.latitude,
+                    longitude:crd.longitude,
+                    altitude:crd.altitude,
+                },()=>{
+                    this.checkLocation()
+                })
             })
         }   
         return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
@@ -1018,7 +1080,7 @@ componentDidMount() {
                                 
                             (this.state.position.latitude && !this.state.editing) || (this.state.position.latitude && this.state.editing && this.state.newLocationPin)?
                             <div className="flex mb-5">
-                                    <button className='flex justify-center items-center rounded-md bg-green-900 text-white font-bold p-3 w-1/2 hover:bg-green-700'
+                                    <button className={'flex justify-center items-center rounded-md text-white font-bold p-3 w-1/2 '+this.state.locationButtonColor}
                                     onClick={()=>{
                                         this.setState({locationConfirmed:true})
                                     }}>
