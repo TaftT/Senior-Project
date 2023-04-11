@@ -122,7 +122,7 @@ handleOrientation(event) {
     if(absolute && alpha % 1 !== 0 && beta % 1 !== 0 && gamma % 1 !== 0 && alpha<180 && beta<180 && gamma<100){
         ORIENTATIONCOUNTER+= 1
     }
-    if(ORIENTATIONCOUNTER===25){
+    if(ORIENTATIONCOUNTER===50){
         console.log(absolute,alpha,beta,gamma)
         ORIENTATIONCOUNTER=0
         this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true})
@@ -136,7 +136,7 @@ getLocation(){
       };
     const success = (pos) => {
         const crd = pos.coords;
-        if((this.state.latitude != crd.latitude || this.state.longitude != crd.longitude)&&(this.state.latitude+0.0000075 <= crd.latitude || this.state.latitude-0.0000075 >= crd.latitude || this.state.longitude+0.0000075 <= crd.longitude || this.state.longitude-0.0000075 >= crd.longitude)){
+        if((this.state.latitude != crd.latitude || this.state.longitude != crd.longitude)){
             
                 this.setState({
                     gettingLocation:true,
@@ -158,7 +158,7 @@ getLocation(){
     const error = (err) => {
         console.warn(`ERROR(${err.code}): ${err.message}`);
     }
-    let GEOID = navigator.geolocation.watchPosition(success, error, options);
+    let GEOID = navigator.geolocation.getCurrentPosition(success, error, options);
     ORIENTATIONCOUNTER=0
     LOCATIONCOUNTER=0
     window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
@@ -199,7 +199,9 @@ componentDidMount() {
     getUser().then((user)=>{
         this.setState({user:user},()=>{
             this.loadLocations().then(()=>{
-                this.getLocation()
+                setInterval(() => {
+                    this.getLocation();
+                  }, 5000);
                 this.loadAllHours().then(()=>{
                     this.setState({loading:false})
                 })
