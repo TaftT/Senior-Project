@@ -135,10 +135,9 @@ getLocation(){
     const success = (pos) => {
         const crd = pos.coords;
         if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
-            this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
+            
                 this.setState({
                     gettingLocation:true,
-                    locations:locations,
                     newSnap:false,
                     accuracy:crd.accuracy,
                     latitude:crd.latitude,
@@ -149,8 +148,12 @@ getLocation(){
                     speed:crd.speed,
                 },()=>{
                     this.checkLocation()
+                    this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
+                        this.setState({
+                            locations:locations,
+                        })
+                    })
                 })
-            })
         }   
 
         return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
