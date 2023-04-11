@@ -21,6 +21,7 @@ constructor(props) {
         selectedLocation:null,
         selectedLocationIsOpen:false,
         selectedLocationHours:[],
+        gettingLocation:false,
         accuracy:0,
         latitude:0,
         longitude:0,
@@ -122,7 +123,6 @@ handleOrientation(event) {
     if(ORIENTATIONCOUNTER===25){
         console.log(absolute,alpha,beta,gamma)
         ORIENTATIONCOUNTER=0
-        this.checkLocation()
         this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true})
     }
   }
@@ -134,30 +134,25 @@ getLocation(){
       };
     const success = (pos) => {
         const crd = pos.coords;
-      
-        if(this.state.newSnap){
-            if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
-                
-                this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
-                    console.log(locations)
-                    this.setState({
-                        locations:locations,
-                        newSnap:false,
-                        accuracy:crd.accuracy,
-                        latitude:crd.latitude,
-                        longitude:crd.longitude,
-                        altitude:crd.altitude,
-                        altitudeAccuracy:crd.altitudeAccuracy,
-                        heading:crd.heading,
-                        speed:crd.speed,
-                    },()=>{
-                        console.log(this.state.longitude,this.state.latitude)
-        
-                    })
-    
+        if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
+            this.sortLocationsByDistance(crd.latitude, crd.longitude, this.state.locations).then((locations)=>{
+                this.setState({
+                    gettingLocation:true,
+                    locations:locations,
+                    newSnap:false,
+                    accuracy:crd.accuracy,
+                    latitude:crd.latitude,
+                    longitude:crd.longitude,
+                    altitude:crd.altitude,
+                    altitudeAccuracy:crd.altitudeAccuracy,
+                    heading:crd.heading,
+                    speed:crd.speed,
+                },()=>{
+                    this.checkLocation()
                 })
-            }   
-        }
+            })
+        }   
+
         return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
     }
     const error = (err) => {
@@ -255,14 +250,19 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
 
     render() {
         return <div>
-            <div className="fixed" style={{bottom:"110px", left:"12px"}}>
-                <span className="absolute flex h-5 w-5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
-                    <div className="relative flex justify-center items-center rounded-full h-5 w-5 bg-sky-500">
-                        <svg  className="w-3 h-3"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="white" d="M80.3 44C69.8 69.9 64 98.2 64 128s5.8 58.1 16.3 84c6.6 16.4-1.3 35-17.7 41.7s-35-1.3-41.7-17.7C7.4 202.6 0 166.1 0 128S7.4 53.4 20.9 20C27.6 3.6 46.2-4.3 62.6 2.3S86.9 27.6 80.3 44zM555.1 20C568.6 53.4 576 89.9 576 128s-7.4 74.6-20.9 108c-6.6 16.4-25.3 24.3-41.7 17.7S489.1 228.4 495.7 212c10.5-25.9 16.3-54.2 16.3-84s-5.8-58.1-16.3-84C489.1 27.6 497 9 513.4 2.3s35 1.3 41.7 17.7zM352 128c0 23.7-12.9 44.4-32 55.4V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V183.4c-19.1-11.1-32-31.7-32-55.4c0-35.3 28.7-64 64-64s64 28.7 64 64zM170.6 76.8C163.8 92.4 160 109.7 160 128s3.8 35.6 10.6 51.2c7.1 16.2-.3 35.1-16.5 42.1s-35.1-.3-42.1-16.5c-10.3-23.6-16-49.6-16-76.8s5.7-53.2 16-76.8c7.1-16.2 25.9-23.6 42.1-16.5s23.6 25.9 16.5 42.1zM464 51.2c10.3 23.6 16 49.6 16 76.8s-5.7 53.2-16 76.8c-7.1 16.2-25.9 23.6-42.1 16.5s-23.6-25.9-16.5-42.1c6.8-15.6 10.6-32.9 10.6-51.2s-3.8-35.6-10.6-51.2c-7.1-16.2 .3-35.1 16.5-42.1s35.1 .3 42.1 16.5z"/></svg>
-                    </div>
-                </span>
-            </div>
+           {
+                this.state.gettingLocation?
+                <div className="fixed" style={{bottom:"110px", left:"12px"}}>
+                    <span className="absolute flex h-5 w-5">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                        <div className="relative flex justify-center items-center rounded-full h-5 w-5 bg-sky-500">
+                            <svg  className="w-3 h-3"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="white" d="M80.3 44C69.8 69.9 64 98.2 64 128s5.8 58.1 16.3 84c6.6 16.4-1.3 35-17.7 41.7s-35-1.3-41.7-17.7C7.4 202.6 0 166.1 0 128S7.4 53.4 20.9 20C27.6 3.6 46.2-4.3 62.6 2.3S86.9 27.6 80.3 44zM555.1 20C568.6 53.4 576 89.9 576 128s-7.4 74.6-20.9 108c-6.6 16.4-25.3 24.3-41.7 17.7S489.1 228.4 495.7 212c10.5-25.9 16.3-54.2 16.3-84s-5.8-58.1-16.3-84C489.1 27.6 497 9 513.4 2.3s35 1.3 41.7 17.7zM352 128c0 23.7-12.9 44.4-32 55.4V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V183.4c-19.1-11.1-32-31.7-32-55.4c0-35.3 28.7-64 64-64s64 28.7 64 64zM170.6 76.8C163.8 92.4 160 109.7 160 128s3.8 35.6 10.6 51.2c7.1 16.2-.3 35.1-16.5 42.1s-35.1-.3-42.1-16.5c-10.3-23.6-16-49.6-16-76.8s5.7-53.2 16-76.8c7.1-16.2 25.9-23.6 42.1-16.5s23.6 25.9 16.5 42.1zM464 51.2c10.3 23.6 16 49.6 16 76.8s-5.7 53.2-16 76.8c-7.1 16.2-25.9 23.6-42.1 16.5s-23.6-25.9-16.5-42.1c6.8-15.6 10.6-32.9 10.6-51.2s-3.8-35.6-10.6-51.2c-7.1-16.2 .3-35.1 16.5-42.1s35.1 .3 42.1 16.5z"/></svg>
+                        </div>
+                    </span>
+                </div>
+                :
+                <></>
+            }
             <p>lat:{this.state.latitude}</p>
             <p>lon:{this.state.longitude}</p>
             <p>accuracy:{this.state.accuracy}</p>
@@ -299,23 +299,35 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                         </div>
                                     </div>
                                     <Map render={this.state.selectedLocation.latitude && this.state.selectedLocation.longitude } latitude={this.state.selectedLocation.latitude} longitude={this.state.selectedLocation.longitude}/>
+                                    
                                     {
-                                        this.state.selectedLocationIsOpen?
-                                        <button className={this.state.buttonClass}
-                                        onClick={()=>{
-                                            if(this.state.selectedLocation){      
-                                                if(this.state.arrived){
-                                                    this.setState({locationFeedBack:"Thanks for visiting",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-green-600"})
-                                                }else {
-                                                    this.setState({locationFeedBack:"Please Move Closer", buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-yellow-500"})
+                                        this.state.gettingLocation?
+                                        <>
+                                            {
+                                            this.state.selectedLocationIsOpen?
+                                            <button className={this.state.buttonClass}
+                                            onClick={()=>{
+                                                if(this.state.selectedLocation){      
+                                                    if(this.state.arrived){
+                                                        this.setState({locationFeedBack:"Thanks for visiting",buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-green-600"})
+                                                    }else {
+                                                        this.setState({locationFeedBack:"Please Move Closer", buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-yellow-500"})
+                                                    }
                                                 }
-                                            }
-                                        }}
-                                    >{this.state.locationFeedBack?this.state.locationFeedBack:"Visit to Claim 10 Points"}</button>
-                                    :
-                                    <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
-                                        
-                                    >CLOSED Visit later to Claim 10 points</button>
+                                            }}
+                                        >{this.state.locationFeedBack?this.state.locationFeedBack:"Visit to Claim 10 Points"}</button>
+                                        :
+                                        <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
+                                            
+                                        >CLOSED Visit later to Claim 10 points</button>
+                                        }
+                                        </>
+                                        :
+                                        <button disabled={true} className="flex flex-col mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full mb-5'"
+                                            >
+                                               <p>Cannot access your location</p>
+                                               <p className='text-sm'>Try refreshing the page or check your browser permissions</p>
+                                        </button>
                                     }
                                     <div className="flex justify-between">
                                         <div className={this.state.selectedLocation.availablePoints>=50?'flex flex-col w-1/2 justify-center items-center rounded-md bg-green-600 text-white font-bold p-1':'flex flex-col w-1/2 justify-center items-center rounded-md bg-yellow-500 text-white font-bold p-1'}>

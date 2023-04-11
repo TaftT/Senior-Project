@@ -1,6 +1,5 @@
 import React from 'react';
 import Map from '../components/map'
-import LocationGetter from '../components/locationGetter'
 import {db,getUser,storage} from '../config/firebase'
 import {getDocs,collection, query, where,addDoc, deleteDoc, updateDoc, doc} from "firebase/firestore"
 import Nav from '../components/nav'
@@ -20,6 +19,12 @@ constructor(props) {
 
     this.state = {
         user:{},
+        accuracy:0,
+        latitude:0,
+        longitude:0,
+        altitude:0,
+        GEOID:null,
+        gettingLocation:false,
         locations:[],
         locationInputScreen:false,
         buttonDisable:false,
@@ -872,6 +877,36 @@ async deleteLocation(location){
     })
 }
 
+getLocation(){
+    const options = {
+        enableHighAccuracy: true,
+        maximumAge: 0,
+      };
+    const success = (pos) => {
+        const crd = pos.coords;
+        if(this.state.latitude != crd.latitude || this.state.longitude != crd.longitude){
+            this.setState({
+                gettingLocation:true,
+                accuracy:crd.accuracy,
+                latitude:crd.latitude,
+                longitude:crd.longitude,
+                altitude:crd.altitude,
+            },()=>{
+                console.log(this.state.longitude,this.state.latitude)
+
+            })
+        }   
+        return {latitude:crd.latitude,longitude:crd.longitude,accuracy:crd.accuracy}
+    }
+    const error = (err) => {
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+    }
+    let GEOID = navigator.geolocation.watchPosition(success, error, options);
+    this.setState({GEOID:GEOID})
+
+}
+
+
 async savePoints(location){
     if(location.newAvailablePoints && location.newAvailablePoints != location.availablePoints){
         const dataDoc = doc(db,"locations",location.id)
@@ -910,6 +945,7 @@ componentDidMount() {
         console.log(user)
         this.setState({user:user},()=>{
             this.loadLocations()
+            this.getLocation()
         })
 
     }).catch((error)=>{
@@ -922,6 +958,20 @@ componentDidMount() {
     render() {
         return (
         <>
+        {
+            this.state.gettingLocation?
+            <div className="fixed" style={{bottom:"110px", left:"12px"}}>
+                <span className="absolute flex h-5 w-5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                    <div className="relative flex justify-center items-center rounded-full h-5 w-5 bg-sky-500">
+                        <svg  className="w-3 h-3"  xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path fill="white" d="M80.3 44C69.8 69.9 64 98.2 64 128s5.8 58.1 16.3 84c6.6 16.4-1.3 35-17.7 41.7s-35-1.3-41.7-17.7C7.4 202.6 0 166.1 0 128S7.4 53.4 20.9 20C27.6 3.6 46.2-4.3 62.6 2.3S86.9 27.6 80.3 44zM555.1 20C568.6 53.4 576 89.9 576 128s-7.4 74.6-20.9 108c-6.6 16.4-25.3 24.3-41.7 17.7S489.1 228.4 495.7 212c10.5-25.9 16.3-54.2 16.3-84s-5.8-58.1-16.3-84C489.1 27.6 497 9 513.4 2.3s35 1.3 41.7 17.7zM352 128c0 23.7-12.9 44.4-32 55.4V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V183.4c-19.1-11.1-32-31.7-32-55.4c0-35.3 28.7-64 64-64s64 28.7 64 64zM170.6 76.8C163.8 92.4 160 109.7 160 128s3.8 35.6 10.6 51.2c7.1 16.2-.3 35.1-16.5 42.1s-35.1-.3-42.1-16.5c-10.3-23.6-16-49.6-16-76.8s5.7-53.2 16-76.8c7.1-16.2 25.9-23.6 42.1-16.5s23.6 25.9 16.5 42.1zM464 51.2c10.3 23.6 16 49.6 16 76.8s-5.7 53.2-16 76.8c-7.1 16.2-25.9 23.6-42.1 16.5s-23.6-25.9-16.5-42.1c6.8-15.6 10.6-32.9 10.6-51.2s-3.8-35.6-10.6-51.2c-7.1-16.2 .3-35.1 16.5-42.1s35.1 .3 42.1 16.5z"/></svg>
+                    </div>
+                </span>
+            </div>
+            :
+            <></>
+        }
+            
             <main className='p-5 w-full'>
                 {
                     this.state.locationInputScreen?
@@ -938,14 +988,34 @@ componentDidMount() {
 
                         <div className='p-5 w-full bg-white shadow-md rounded-md'>
                             <Map render={this.state.position.latitude && this.state.position.longitude } latitude={this.state.position.latitude} longitude={this.state.position.longitude}/>
-                            <LocationGetter buttonText={this.state.editing?"Change Pin":"Pin My Location"} reset={this.state.resetPin} resetCallBack={()=>{this.setState({resetPin:false})}} callBackSuccess={(data)=>{
+                            {/* <LocationGetter buttonText={this.state.editing?"Change Pin":"Pin My Location"} reset={this.state.resetPin} resetCallBack={()=>{this.setState({resetPin:false})}} callBackSuccess={(data)=>{
                                 console.log("Success",data)
                                 this.setState({position:data})
                                 if(this.state.editing){
                                     this.setState({newLocationPin:true})
                                 }
-                                }}/>
+                                }}/> */}
+                                {
+                                    this.state.gettingLocation?
+                                    <button className="flex mb-5 justify-center items-center rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5'"
+                                        onClick={()=>{
+                                            this.setState({position:{
+                                                latitude:this.state.latitude,
+                                                longitude:this.state.longitude,
+                                                altitude:this.state.altitude,
+                                            }},
+                                            ()=>{
+                                                console.log(this.state.position)
+                                            })
+                                        }}>Pin My location</button>
+                                :
+                                <button disabled={true} className="flex flex-col mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full mb-5'"
+                               ><p>Cannot access your location</p>
+                               <p className='text-sm'>Try refreshing the page or check your browser permissions</p></button>
+                                }
+                                
                             {
+                                
                             (this.state.position.latitude && !this.state.editing) || (this.state.position.latitude && this.state.editing && this.state.newLocationPin)?
                             <div className="flex mb-5">
                                     <button className='flex justify-center items-center rounded-md bg-green-900 text-white font-bold p-3 w-1/2 hover:bg-green-700'
