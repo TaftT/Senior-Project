@@ -37,7 +37,8 @@ constructor(props) {
         newSnap:true,
         arrived:false,
         locationFeedBack:"",
-        buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700",
+        buttonClass:"",
+        testing:false,
     };
 }
 
@@ -123,7 +124,7 @@ handleOrientation(event) {
     if(absolute && alpha % 1 !== 0 && beta % 1 !== 0 && gamma % 1 !== 0 && alpha<180 && beta<180 && gamma<100){
         ORIENTATIONCOUNTER+= 1
     }
-    if(ORIENTATIONCOUNTER===50){
+    if(ORIENTATIONCOUNTER===100){
         console.log(absolute,alpha,beta,gamma)
         ORIENTATIONCOUNTER=0
         this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true})
@@ -154,7 +155,7 @@ getLocation(){
                 })
         } else {
             console.log("Closer")
-            this.setState({locationFeedBack:"Please Move Closer"})
+            this.setState({gettingLocation:false,locationFeedBack:"Please Move Closer"})
         }
     } 
     const error = (err) => {
@@ -256,7 +257,9 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
         return <div>
            {
                 this.state.gettingLocation?
-                <div className="fixed" style={{bottom:"110px", left:"12px"}}>
+                <div className="fixed" style={{bottom:"110px", left:"12px"}} onClick={()=>{
+                    this.setState({testing:true})
+                }}>
                     <span className="absolute flex h-5 w-5">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
                         <div className="relative flex justify-center items-center rounded-full h-5 w-5 bg-sky-500">
@@ -267,17 +270,25 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                 :
                 <></>
             }
-            <p>lat:{this.state.latitude}</p>
-            <p>lon:{this.state.longitude}</p>
-            <p>accuracy:{this.state.accuracy}</p>
-            <p>altitude:{this.state.altitude}</p>
-            <p>altitude Accuracy:{this.state.altitudeAccuracy}</p>
-            <p>heading:{this.state.heading}</p>
-            <p>speed:{this.state.speed}</p>
-            <p>alpha:{this.state.alpha}</p>
-            <p>beta:{this.state.beta}</p>
-            <p>gamma:{this.state.gamma}</p>
-            <Map render={true} latitude={this.state.latitude} longitude={this.state.longitude}/>
+            {
+                this.state.testing?
+                <div>
+                    <p>lat:{this.state.latitude}</p>
+                    <p>lon:{this.state.longitude}</p>
+                    <p>accuracy:{this.state.accuracy}</p>
+                    <p>altitude:{this.state.altitude}</p>
+                    <p>altitude Accuracy:{this.state.altitudeAccuracy}</p>
+                    <p>heading:{this.state.heading}</p>
+                    <p>speed:{this.state.speed}</p>
+                    <p>alpha:{this.state.alpha}</p>
+                    <p>beta:{this.state.beta}</p>
+                    <p>gamma:{this.state.gamma}</p>
+                    <Map render={true} latitude={this.state.latitude} longitude={this.state.longitude}/>
+                </div>
+                :
+                <></>
+            }
+            
             
             <main className='p-5 w-full'>
             {this.state.loading?
@@ -289,7 +300,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                             <div>
                                 <div className='flex justify-between'>
                                     <div className="w-1/6" onClick={()=>{
-                                        this.setState({selectedLocation:null,locationFeedBack:""})
+                                        this.setState({selectedLocation:null,buttonClass:"",locationFeedBack:""})
                                     }}>
                                         <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l128-128c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-128-128z"/></svg>
                                     </div>
@@ -319,7 +330,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                         <>
                                             {
                                                 this.state.selectedLocationIsOpen?
-                                                <button className={this.state.buttonClass}
+                                                <button className={this.state.buttonClass?this.state.buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"}
                                                 onClick={()=>{
                                                     if(this.state.selectedLocation){   
                                                         console.log("There")   

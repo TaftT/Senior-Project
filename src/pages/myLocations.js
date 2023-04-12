@@ -23,7 +23,7 @@ constructor(props) {
         latitude:0,
         longitude:0,
         altitude:0,
-        radius:10,
+        radius:5,
         GEOID:null,
         arrived:false,
         locationButtonColor:"bg-green-600 hover:bg-green-700",
@@ -1117,8 +1117,8 @@ componentDidMount() {
                             }
                  
                             <div  className="mb-3">
-                                <label className="font-bold text-sm">Geofence Radius in feet</label>
-                                <input className='w-full p-2 rounded-md border-2' name="Radius" type="number" defaultValue={this.state.radius} max={500} min={5} step={5} placeholder="Geofence Radius in feet" 
+                                <label className="font-bold text-sm">Geofence Radius in Yards</label>
+                                <input className='w-full p-2 rounded-md border-2' name="Radius" type="number" defaultValue={this.state.radius} max={200} min={1} step={1} placeholder="Geofence Radius in feet" 
                                 onChange={(e)=>{
                                 
                                     this.setState({radius:Number(e.target.value)})
