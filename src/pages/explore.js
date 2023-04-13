@@ -150,6 +150,31 @@ websiteVisit(){
     }
 }
 
+visitied(){
+    try{
+        const visitsCollection = collection(db,"visits")
+            let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("locationId", "==", this.state.selectedLocation.id))
+            getDocs(q).then(async (res)=>{
+                const filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
+                    ...doc.data(),
+                    id: doc.id
+                })));
+                if(filteredVisits.length>0){
+                    const visitsDoc = doc(db, "visits", filteredVisits[0].id)
+                    const timestamp = serverTimestamp();
+                    await updateDoc(visitsDoc, {dateVisitied:timestamp}) 
+                } else {
+                    
+                    return false
+                }
+            })
+
+    } catch(error){
+        console.log(error)
+        return false
+    }
+}
+
 getListOfVisited(){
     const visitsCollection = collection(db,"visits")
     let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("dateVisited", "!=", ""),where("expired", "==", false))
@@ -234,7 +259,10 @@ getLocation(){
                         heading:crd.heading,
                         speed:crd.speed,
                     },()=>{
-                        this.checkLocation()
+                        const arrived = this.checkLocation()
+                        if(arrived){
+                            this.visitied()
+                        }
                     })
             } else {
                 console.log("Closer")
@@ -440,33 +468,42 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                     }
                                     
                                     <Map render={this.state.selectedLocation.latitude && this.state.selectedLocation.longitude } latitude={this.state.selectedLocation.latitude} longitude={this.state.selectedLocation.longitude}/>
-                                    
                                     {
-                                        !this.state.cannotgettingLocation?
+                                        this.state.listOfVisitedIds.includes(this.state.selectedLocation.id)?
+                                        <button disabled={true} className='rounded-md bg-green-600 text-white font-bold p-3 w-full mb-5' 
+                                        ><p>You Already claimed these points</p>
+                                        <p className='text-sm'>Check back in a couple days to see if more points are available</p></button>
+                                        :
                                         <>
                                             {
-                                                this.state.selectedLocationIsOpen?
-                                                <button className={this.state.buttonClass?this.state.buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"}
-                                                onClick={()=>{
-                                                    if(this.state.selectedLocation){   
-                                                        console.log("There")   
-                                                        this.getLocation();
-                                                        
+                                                !this.state.cannotgettingLocation?
+                                                <>
+                                                    {
+                                                        this.state.selectedLocationIsOpen?
+                                                        <button className={this.state.buttonClass?this.state.buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"}
+                                                        onClick={()=>{
+                                                            if(this.state.selectedLocation){   
+                                                                console.log("There")   
+                                                                this.getLocation();
+                                                                
+                                                            }
+                                                        }}
+                                                    >{this.state.locationFeedBack?this.state.locationFeedBack: "Verify Location to Claim 10 Points"}</button>
+                                                    :
+                                                    <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
+                                                    >CLOSED Visit later to Claim 10 points</button>
                                                     }
-                                                }}
-                                            >{this.state.locationFeedBack?this.state.locationFeedBack: "Verify Location to Claim 10 Points"}</button>
-                                            :
-                                            <button disabled={true} className='rounded-md bg-gray-600 text-white font-bold p-3 w-full mb-5' 
-                                            >CLOSED Visit later to Claim 10 points</button>
+                                                </>
+                                                :
+                                                <button disabled={true} className="flex flex-col mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full mb-5'"
+                                                    >
+                                                    <p>Cannot access your location</p>
+                                                    <p className='text-sm'>Try refreshing the page or check your browser permissions</p>
+                                                </button>
                                             }
                                         </>
-                                        :
-                                        <button disabled={true} className="flex flex-col mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full mb-5'"
-                                            >
-                                               <p>Cannot access your location</p>
-                                               <p className='text-sm'>Try refreshing the page or check your browser permissions</p>
-                                        </button>
                                     }
+                                   
                                     <div className="flex justify-between">
                                         
                                         <div className={this.state.selectedLocation.availablePoints>=50?'flex flex-col w-1/2 justify-center items-center rounded-md bg-green-600 text-white font-bold p-1':'flex flex-col w-1/2 justify-center items-center rounded-md bg-yellow-500 text-white font-bold p-1'}>
