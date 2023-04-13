@@ -309,7 +309,7 @@ getLocationAverage() {
         maximumAge: 5000,
         timeout: 10000,
       };
-  
+      let collectGoal = 10
       let count = 0;
       let lat = 0;
       let long = 0;
@@ -318,6 +318,7 @@ getLocationAverage() {
       let altAcc = 0;
       let head = 0;
       let speed = 0;
+      const startTime = new Date()
   
       const success = (pos) => {
         const crd = pos.coords;
@@ -333,14 +334,14 @@ getLocationAverage() {
   
         count++;
   
-        if (count === 20) {
-          lat /= 20;
-          long /= 20;
-          acc /= 20;
-          alt /= 20;
-          altAcc /= 20;
-          head /= 20;
-          speed /= 20;
+        if (count === collectGoal || new Date() - startTime >= 5000) {
+          lat /= count;
+          long /= count;
+          acc /= count;
+          alt /= count;
+          altAcc /= count;
+          head /= count;
+          speed /= count;
   
           if (
             this.state.latitude !== lat ||
@@ -373,7 +374,6 @@ getLocationAverage() {
               locationFeedBack: "Please Move Closer",
             });
           }
-          this.stopGettingLocation()
           resolve(true);
         } 
         // else if(count == 1){
@@ -398,9 +398,27 @@ getLocationAverage() {
       };
   
       const error = (err) => {
-        this.setState({ cannotgettingLocation: true });
+        const { code } = err;
+        let feedback = ""
+        switch (code) {
+            case "TIMEOUT":
+            // Handle timeout.
+            
+            break;
+            case "PERMISSION_DENIED":
+            // User denied the request.
+            feedback = "Please grant location permissions to this site"
+            break;
+            case "POSITION_UNAVAILABLE":
+            // Position not available.
+            feedback = "Cannot get Location"
+            break;
+        }
+        this.setState({ });
+        this.setState({ cannotgettingLocation: true, gettingLocation:false,locationFeedBack:feedback });
         console.warn(`ERROR(${err.code}): ${err.message}`);
         reject(err);
+        
       };
   
       let GEOID = navigator.geolocation.watchPosition(success, error, options);
@@ -415,13 +433,6 @@ getLocationAverage() {
     });
   }
 
-  stopGettingLocation() {
-    navigator.geolocation.clearWatch(this.state.GEOID);
-    this.setState({
-        GEOID: -1,
-        gettingLocation: false
-    });
-  }
 
 
 
