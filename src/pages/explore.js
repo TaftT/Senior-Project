@@ -110,7 +110,7 @@ createVisitLog(){
                         ownerUserId:this.state.user.uid,
                         locationId:this.state.selectedLocation.id,
                         dateVeiwed:timestamp,
-                        dateVisited:"",
+                        dateVisited:null,
                         dateExpires:"",
                         expired:false,
                         visitedWebsite:false,
@@ -150,34 +150,11 @@ websiteVisit(){
     }
 }
 
-visitied(){
-    try{
-        const visitsCollection = collection(db,"visits")
-            let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("locationId", "==", this.state.selectedLocation.id))
-            getDocs(q).then(async (res)=>{
-                const filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
-                    ...doc.data(),
-                    id: doc.id
-                })));
-                if(filteredVisits.length>0){
-                    const visitsDoc = doc(db, "visits", filteredVisits[0].id)
-                    const timestamp = serverTimestamp();
-                    await updateDoc(visitsDoc, {dateVisitied:timestamp}) 
-                } else {
-                    
-                    return false
-                }
-            })
 
-    } catch(error){
-        console.log(error)
-        return false
-    }
-}
 
 getListOfVisited(){
     const visitsCollection = collection(db,"visits")
-    let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("dateVisited", "!=", ""),where("expired", "==", false))
+    let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("dateVisited", "!=", null),where("expired", "==", false))
     getDocs(q).then(async (res)=>{
         const filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
             ...doc.data(),
@@ -188,7 +165,10 @@ getListOfVisited(){
             const visit = filteredVisits[index];
             listOfVisitedIds.push(visit.locationId) 
         }
-        this.setState({listOfVisitedIds:listOfVisitedIds})
+        this.setState({listOfVisitedIds:listOfVisitedIds},
+            ()=>{
+                console.log("list of visitied", this.state.listOfVisitedIds)
+            })
     })
 }
 
@@ -260,8 +240,9 @@ getLocation(){
                         speed:crd.speed,
                     },()=>{
                         const arrived = this.checkLocation()
+                        console.log("arrived",arrived)
                         if(arrived){
-                            this.visitied()
+                            this.visited()
                         }
                     })
             } else {
@@ -281,6 +262,32 @@ getLocation(){
     window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
     this.setState({gettingLocation:true,GEOID:GEOID})
     })
+}
+
+visited(){
+    try{
+        const visitsCollection = collection(db,"visits")
+        console.log(this.state.user.uid,this.state.selectedLocation)
+        let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("locationId", "==", this.state.selectedLocation.id))
+        getDocs(q).then(async (res)=>{
+            const filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
+                ...doc.data(),
+                id: doc.id
+            })));
+            if(filteredVisits.length>0){
+                const visitsDoc = doc(db, "visits", filteredVisits[0].id)
+                const timestamp = serverTimestamp();
+                await updateDoc(visitsDoc, {dateVisited:timestamp}) 
+            } else {
+                
+                return false
+            }
+        })
+        this.loadLocations()
+    } catch(error){
+        console.log(error)
+        return false
+    }
 }
 
 // checkLocation() {
@@ -346,7 +353,6 @@ componentDidMount() {
         this.setState({user:user},()=>{
             this.getLocation().then(()=>{
                 this.loadLocations().then(()=>{
-                
                     this.loadAllHours().then(()=>{
                         this.setState({loading:false})
                     })
@@ -471,8 +477,8 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                     {
                                         this.state.listOfVisitedIds.includes(this.state.selectedLocation.id)?
                                         <button disabled={true} className='rounded-md bg-green-600 text-white font-bold p-3 w-full mb-5' 
-                                        ><p>You Already claimed these points</p>
-                                        <p className='text-sm'>Check back in a couple days to see if more points are available</p></button>
+                                        ><p>You have claimed these points</p>
+                                        <p className='text-sm'>Check back later when more points are available</p></button>
                                         :
                                         <>
                                             {
@@ -480,7 +486,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                                 <>
                                                     {
                                                         this.state.selectedLocationIsOpen?
-                                                        <button className={this.state.buttonClass?this.state.buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"}
+                                                        <button disabled={this.state.arrived} className={this.state.buttonClass?this.state.buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"}
                                                         onClick={()=>{
                                                             if(this.state.selectedLocation){   
                                                                 console.log("There")   
