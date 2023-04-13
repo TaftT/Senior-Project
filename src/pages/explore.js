@@ -1,6 +1,6 @@
 import React from 'react';
 import {db,getUser} from '../config/firebase'
-import {getDocs,collection,addDoc,updateDoc,query, where, doc, serverTimestamp, fromDate} from "firebase/firestore"
+import {getDocs,collection,addDoc,updateDoc,query, where, doc, serverTimestamp, toDate, fromDate} from "firebase/firestore"
 import Nav from '../components/nav'
 import dayjs from 'dayjs'
 import Map from '../components/map'
@@ -154,19 +154,22 @@ websiteVisit(){
 
 getListOfVisited(){
     const today = new Date();
-    const visitsRef = db.collection('visits');
-
-    visitsRef.where('ownerUserId', '==', this.state.user.uid)
-            .where('dateVisited', '!=', null)
-            .where('expired', '==', false)
-            .where('expirationDate', '<=', today)
-            .get()
-            .then(async (querySnapshot) => {
-                const filteredVisits = await Promise.all(querySnapshot.map(async (doc)=>({
+    const visitsCollection = collection(db,"visits");
+    let q = query(
+        visitsCollection,
+        where("ownerUserId", "==", this.state.user.uid)
+      )
+        getDocs(q).then(async (res) => {
+                let filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
                     ...doc.data(),
                     id: doc.id
                 })));
                 let listOfVisitedIds=[]
+                console.log("before",filteredVisits)
+                filteredVisits = filteredVisits.filter((visit) => {
+                    return (visit.dateExpires == "" || visit.dateExpires.toDate() <= today) && visit.expired == false && visit.dateVisited !== null;
+                  });
+                  console.log("after",filteredVisits)
                 for (let index = 0; index < filteredVisits.length; index++) {
                     const visit = filteredVisits[index];
                     listOfVisitedIds.push(visit.locationId) 
@@ -266,13 +269,130 @@ getLocation(){
         console.warn(`ERROR(${err.code}): ${err.message}`);
         reject(err)
     }
-    let GEOID = navigator.geolocation.getCurrentPosition(success, error, options);
+    let GEOID = navigator.geolocation.watchPosition(success, error, options);
     ORIENTATIONCOUNTER=0
     LOCATIONCOUNTER=0
     window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
     this.setState({gettingLocation:true,GEOID:GEOID})
     })
 }
+
+getLocationAverage() {
+    return new Promise(async (resolve, reject) => {
+      const options = {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 10000,
+      };
+  
+      let count = 0;
+      let lat = 0;
+      let long = 0;
+      let acc = 0;
+      let alt = 0;
+      let altAcc = 0;
+      let head = 0;
+      let speed = 0;
+  
+      const success = (pos) => {
+        const crd = pos.coords;
+        console.log("getLocation");
+  
+        lat += crd.latitude;
+        long += crd.longitude;
+        acc += crd.accuracy;
+        alt += crd.altitude;
+        altAcc += crd.altitudeAccuracy;
+        head += crd.heading;
+        speed += crd.speed;
+  
+        count++;
+  
+        if (count === 20) {
+          lat /= 20;
+          long /= 20;
+          acc /= 20;
+          alt /= 20;
+          altAcc /= 20;
+          head /= 20;
+          speed /= 20;
+  
+          if (
+            this.state.latitude !== lat ||
+            this.state.longitude !== long ||
+            this.state.heading !== head ||
+            this.state.speed !== speed
+          ) {
+            this.setState(
+              {
+                gettingLocation: false,
+                newSnap: false,
+                accuracy: acc,
+                latitude: lat,
+                longitude: long,
+                altitude: alt,
+                altitudeAccuracy: altAcc,
+                heading: head,
+                speed: speed,
+              },
+              () => {
+                const arrived = this.checkLocation();
+                console.log("arrived", arrived);
+                if (arrived) {
+                  this.visited();
+                }
+              }
+            );
+          } else {
+            console.log("Closer");
+            this.setState({
+              gettingLocation: false,
+              locationFeedBack: "Please Move Closer",
+            });
+          }
+  
+          resolve(true);
+        } 
+        // else if(count == 1){
+        //     console.log("location set")
+        //     this.setState(
+        //         {
+        //           gettingLocation: false,
+        //           newSnap: false,
+        //           accuracy: crd.accuracy,
+        //           latitude: crd.latitude,
+        //           longitude: crd.longitude,
+        //           altitude: crd.altitude,
+        //           altitudeAccuracy: crd.altitudeAccuracy,
+        //           heading: crd.heading,
+        //           speed: crd.speed,
+        //         },
+        //         () => {
+                  
+        //         }
+        //       );
+        // }
+      };
+  
+      const error = (err) => {
+        this.setState({ cannotgettingLocation: true });
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+        reject(err);
+      };
+  
+      let GEOID = navigator.geolocation.watchPosition(success, error, options);
+      ORIENTATIONCOUNTER = 0;
+      LOCATIONCOUNTER = 0;
+      window.addEventListener(
+        "deviceorientationabsolute",
+        (event) => this.handleOrientation(event),
+        true
+      );
+      this.setState({ gettingLocation: true, GEOID: GEOID });
+    });
+  }
+
+
 
 visited(){
     try{
@@ -500,7 +620,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                                         onClick={()=>{
                                                             if(this.state.selectedLocation){   
                                                                 console.log("There")   
-                                                                this.getLocation();
+                                                                this.getLocationAverage();
                                                                 
                                                             }
                                                         }}
