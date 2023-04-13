@@ -418,8 +418,7 @@ getLocationAverage() {
             feedback = "Cannot get Location"
             break;
         }
-        this.setState({ });
-        this.setState({ cannotgettingLocation: true, gettingLocation:false ,locationFeedBack:feedback, locationFeedBack:"Please 5 seconds to verify your Location" });
+        this.setState({ cannotgettingLocation: true, gettingLocation:false ,locationFeedBack:feedback});
         console.warn(`ERROR(${err.code}): ${err.message}`);
         reject(err);
         
@@ -433,7 +432,7 @@ getLocationAverage() {
         (event) => this.handleOrientation(event),
         true
       );
-      this.setState({ gettingLocation: true, GEOID: GEOID });
+      this.setState({ gettingLocation: true, GEOID: GEOID, locationFeedBack:"Please 5 seconds to verify your Location"  });
     });
   }
 stopGeoWatch() {
