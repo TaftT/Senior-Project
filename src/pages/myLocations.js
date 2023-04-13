@@ -1011,9 +1011,9 @@ componentDidMount() {
     getUser().then((user)=>{
         console.log(user)
         this.setState({user:user},()=>{
-            this.getLocation()
-            this.loadLocations()
-            
+            this.getLocation().then(()=>{
+                this.loadLocations()
+            })
         })
 
     }).catch((error)=>{

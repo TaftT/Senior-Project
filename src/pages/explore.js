@@ -208,49 +208,51 @@ handleOrientation(event) {
     }
     if(ORIENTATIONCOUNTER===100){
         console.log(absolute,alpha,beta,gamma)
-        ORIENTATIONCOUNTER=0
         this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true})
     }
   }
 
 getLocation(){
+    return new Promise(async (resolve, reject) =>  {
     const options = {
         enableHighAccuracy: true,
         maximumAge: 5000,
         timeout: 10000,
       };
     const success = (pos) => {
-        const crd = pos.coords;
-        console.log("getLocation")
-        if(this.state.latitude !== crd.latitude || this.state.longitude !== crd.longitude){
-                this.setState({
-                    gettingLocation:false,
-                    newSnap:false,
-                    accuracy:crd.accuracy,
-                    latitude:crd.latitude,
-                    longitude:crd.longitude,
-                    altitude:crd.altitude,
-                    altitudeAccuracy:crd.altitudeAccuracy,
-                    heading:crd.heading,
-                    speed:crd.speed,
-                },()=>{
-                    this.checkLocation()
-                })
-        } else {
-            console.log("Closer")
-            this.setState({gettingLocation:false,locationFeedBack:"Please Move Closer"})
-        }
+            const crd = pos.coords;
+            console.log("getLocation")
+            if(this.state.latitude !== crd.latitude || this.state.longitude !== crd.longitude){
+                    this.setState({
+                        gettingLocation:false,
+                        newSnap:false,
+                        accuracy:crd.accuracy,
+                        latitude:crd.latitude,
+                        longitude:crd.longitude,
+                        altitude:crd.altitude,
+                        altitudeAccuracy:crd.altitudeAccuracy,
+                        heading:crd.heading,
+                        speed:crd.speed,
+                    },()=>{
+                        this.checkLocation()
+                    })
+            } else {
+                console.log("Closer")
+                this.setState({gettingLocation:false,locationFeedBack:"Please Move Closer"})
+            }
+            resolve(true)
     } 
     const error = (err) => {
         this.setState({cannotgettingLocation:true})
         console.warn(`ERROR(${err.code}): ${err.message}`);
+        reject(err)
     }
     let GEOID = navigator.geolocation.getCurrentPosition(success, error, options);
     ORIENTATIONCOUNTER=0
     LOCATIONCOUNTER=0
     window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
     this.setState({gettingLocation:true,GEOID:GEOID})
-
+    })
 }
 
 // checkLocation() {
@@ -283,10 +285,11 @@ getLocation(){
 //   }
 
   
-checkLocation(locationData) {
+checkLocation() {
     if (this.state.selectedLocation) {
       console.log("checkLocation");
-      const { latitude, longitude } = locationData;
+      const latitude = this.state.latitude
+      const longitude = this.state.longitude;
       const radius = this.state.selectedLocation.radius; // meters
       const lat1 = this.toRadians(latitude);
       const lat2 = this.toRadians(this.state.selectedLocation.latitude);
@@ -313,14 +316,15 @@ componentDidMount() {
     this.setState({loading:true})
     getUser().then((user)=>{
         this.setState({user:user},()=>{
-            this.getLocation()
-            this.loadLocations().then(()=>{
+            this.getLocation().then(()=>{
+                this.loadLocations().then(()=>{
                 
-                this.loadAllHours().then(()=>{
-                    this.setState({loading:false})
+                    this.loadAllHours().then(()=>{
+                        this.setState({loading:false})
+                    })
                 })
             })
-            
+ 
         })
 
     }).catch((error)=>{
