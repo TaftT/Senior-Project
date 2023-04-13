@@ -187,7 +187,7 @@ constructor(props) {
 
         <p className='mb-2'>Compliance with Utah Law: This raffle is in compliance with Utah law. No purchase is necessary to enter. The sponsor awards the prize based on chance. If a person is selected to receive a prize, the sponsor will provide a written prize notice before receiving any payment. The sponsor will also disclose the required language and placement in the prize notice, as required by Utah law.</p>
 
-        <p className='mb-2'>By participating in the raffle, you agree to these rules and regulations. If you have any questions or concerns, please contact us at support@pindasher.com.</p>
+        <p className='mb-2'>By participating in the raffle, you agree to these rules and regulations. If you have any questions or concerns, please contact us at pindasher.com@gmail.com.</p>
 
         <h2 className='font-bold text-xl mt-4'>Intellectual Property:</h2>
 
