@@ -419,7 +419,7 @@ getLocationAverage() {
             break;
         }
         this.setState({ });
-        this.setState({ cannotgettingLocation: true, gettingLocation:false ,locationFeedBack:feedback });
+        this.setState({ cannotgettingLocation: true, gettingLocation:false ,locationFeedBack:feedback, locationFeedBack:"Please 5 seconds to verify your Location" });
         console.warn(`ERROR(${err.code}): ${err.message}`);
         reject(err);
         
@@ -457,12 +457,13 @@ visited(){
                 const visitsDoc = doc(db, "visits", filteredVisits[0].id)
                 const timestamp = serverTimestamp();
                 await updateDoc(visitsDoc, {dateVisited:timestamp}) 
+                this.loadLocations()
+                return
             } else {
-                
                 return false
             }
         })
-        this.loadLocations()
+        
     } catch(error){
         console.log(error)
         return false
@@ -633,7 +634,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                             <div>
                                 <div className='flex justify-between'>
                                     <div className="w-1/6" onClick={()=>{
-                                        this.setState({selectedLocation:null,buttonClass:"",locationFeedBack:""})
+                                        this.setState({selectedLocation:null,buttonClass:"",locationFeedBack:"",arrived:false})
                                     }}>
                                         <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l128-128c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-128-128z"/></svg>
                                     </div>
