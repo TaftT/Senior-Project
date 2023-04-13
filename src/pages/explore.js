@@ -153,23 +153,33 @@ websiteVisit(){
 
 
 getListOfVisited(){
-    const visitsCollection = collection(db,"visits")
-    let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("dateVisited", "!=", null),where("expired", "==", false))
-    getDocs(q).then(async (res)=>{
-        const filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
-            ...doc.data(),
-            id: doc.id
-        })));
-        let listOfVisitedIds=[]
-        for (let index = 0; index < filteredVisits.length; index++) {
-            const visit = filteredVisits[index];
-            listOfVisitedIds.push(visit.locationId) 
-        }
-        this.setState({listOfVisitedIds:listOfVisitedIds},
-            ()=>{
-                console.log("list of visitied", this.state.listOfVisitedIds)
+    const today = new Date();
+    const visitsRef = db.collection('visits');
+
+    visitsRef.where('ownerUserId', '==', this.state.user.uid)
+            .where('dateVisited', '!=', null)
+            .where('expired', '==', false)
+            .where('expirationDate', '<=', today)
+            .get()
+            .then(async (querySnapshot) => {
+                const filteredVisits = await Promise.all(querySnapshot.map(async (doc)=>({
+                    ...doc.data(),
+                    id: doc.id
+                })));
+                let listOfVisitedIds=[]
+                for (let index = 0; index < filteredVisits.length; index++) {
+                    const visit = filteredVisits[index];
+                    listOfVisitedIds.push(visit.locationId) 
+                }
+                this.setState({listOfVisitedIds:listOfVisitedIds},
+                    ()=>{
+                        console.log("list of visitied", this.state.listOfVisitedIds)
+                    })
             })
-    })
+            .catch((error) => {
+                console.log('Error getting documents: ', error);
+            });
+
 }
 
 convertHourToString(num) {
