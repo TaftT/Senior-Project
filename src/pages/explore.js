@@ -269,7 +269,7 @@ getLocation(){
         console.warn(`ERROR(${err.code}): ${err.message}`);
         reject(err)
     }
-    let GEOID = navigator.geolocation.watchPosition(success, error, options);
+    let GEOID = navigator.geolocation.getCurrentPosition(success, error, options);
     ORIENTATIONCOUNTER=0
     LOCATIONCOUNTER=0
     window.addEventListener("deviceorientationabsolute", (event)=>this.handleOrientation(event), true);
@@ -350,7 +350,7 @@ getLocationAverage() {
               locationFeedBack: "Please Move Closer",
             });
           }
-  
+          this.stopGettingLocation()
           resolve(true);
         } 
         // else if(count == 1){
@@ -389,6 +389,13 @@ getLocationAverage() {
         true
       );
       this.setState({ gettingLocation: true, GEOID: GEOID });
+    });
+  }
+
+  stopGettingLocation() {
+    navigator.geolocation.clearWatch(this.state.GEOID);
+    this.setState({
+        GEOID: -1
     });
   }
 
