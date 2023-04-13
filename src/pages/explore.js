@@ -150,6 +150,31 @@ websiteVisit(){
     }
 }
 
+resetVisit(){
+    try{
+        if(this.state.selectedLocation.id){
+            const visitsCollection = collection(db,"visits")
+            let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("locationId", "==", this.state.selectedLocation.id))
+            getDocs(q).then(async (res)=>{
+                const filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
+                    ...doc.data(),
+                    id: doc.id
+                })));
+                if(filteredVisits.length>0){
+                    const visitsDoc = doc(db, "visits", filteredVisits[0].id)
+                    await updateDoc(visitsDoc, {dateVisited:null}) 
+                } else {
+                    
+                    return false
+                }
+            })
+        }
+    } catch(error){
+        console.log(error)
+        return false
+    }
+}
+
 
 
 getListOfVisited(){
@@ -570,6 +595,10 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                     <p>beta:{this.state.beta}</p>
                     <p>gamma:{this.state.gamma}</p>
                     <Map render={true} latitude={this.state.latitude} longitude={this.state.longitude}/>
+                    <button className="mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full"
+                    onClick={()=>{
+                        this.resetVisit()
+                    }}>reset location</button>
                 </div>
                 :
                 <></>
