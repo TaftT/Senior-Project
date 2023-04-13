@@ -39,7 +39,8 @@ constructor(props) {
         locationFeedBack:"",
         buttonClass:"",
         testing:false,
-        listOfVisitedIds:[]
+        listOfVisitedIds:[],
+        // getmylocation:false
     };
 }
 
@@ -309,7 +310,7 @@ getLocationAverage() {
         maximumAge: 5000,
         timeout: 10000,
       };
-      let collectGoal = 10
+      let collectGoal = 20
       let count = 0;
       let lat = 0;
       let long = 0;
@@ -321,7 +322,8 @@ getLocationAverage() {
       const startTime = new Date()
   
       const success = (pos) => {
-        const crd = pos.coords;
+        
+            const crd = pos.coords;
         console.log("getLocation");
   
         lat += crd.latitude;
@@ -361,17 +363,19 @@ getLocationAverage() {
                 speed: speed,
               },
               () => {
-                const arrived = this.checkLocation();
-                console.log("arrived", arrived);
-                if (arrived) {
-                  this.visited();
+                if(!this.state.arrived){
+                    const arrived = this.checkLocation();
+                    if (arrived) {
+                    this.visited();
+                    }
                 }
+                this.stopGeoWatch()
               }
             );
           } else {
             console.log("Closer");
             this.setState({
-              locationFeedBack: "Please Move Closer",
+              locationFeedBack: "Please move around for a better reading.",
             });
           }
           resolve(true);
@@ -415,7 +419,7 @@ getLocationAverage() {
             break;
         }
         this.setState({ });
-        this.setState({ cannotgettingLocation: true, gettingLocation:false,locationFeedBack:feedback });
+        this.setState({ cannotgettingLocation: true, gettingLocation:false ,locationFeedBack:feedback });
         console.warn(`ERROR(${err.code}): ${err.message}`);
         reject(err);
         
@@ -432,7 +436,10 @@ getLocationAverage() {
       this.setState({ gettingLocation: true, GEOID: GEOID });
     });
   }
-
+stopGeoWatch() {
+    navigator.geolocation.clearWatch(this.state.GEOID);
+    this.setState({GEOID:-1,gettingLocation:false})
+  }
 
 
 
