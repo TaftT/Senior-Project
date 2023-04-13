@@ -325,7 +325,6 @@ getLocationAverage() {
           ) {
             this.setState(
               {
-                gettingLocation: false,
                 newSnap: false,
                 accuracy: acc,
                 latitude: lat,
@@ -346,7 +345,6 @@ getLocationAverage() {
           } else {
             console.log("Closer");
             this.setState({
-              gettingLocation: false,
               locationFeedBack: "Please Move Closer",
             });
           }
@@ -357,7 +355,7 @@ getLocationAverage() {
         //     console.log("location set")
         //     this.setState(
         //         {
-        //           gettingLocation: false,
+        //           
         //           newSnap: false,
         //           accuracy: crd.accuracy,
         //           latitude: crd.latitude,
@@ -395,7 +393,8 @@ getLocationAverage() {
   stopGettingLocation() {
     navigator.geolocation.clearWatch(this.state.GEOID);
     this.setState({
-        GEOID: -1
+        GEOID: -1,
+        gettingLocation: false
     });
   }
 
