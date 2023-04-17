@@ -1033,17 +1033,12 @@ getLocationAverage() {
                 speed: speed,
               },
               () => {
-                if(!this.state.arrived){
-                    const arrived = this.checkLocation();
-                    if (arrived) {
-                    this.visited();
-                    }
-                }
                 this.stopGeoWatch()
               }
             );
           } else {
             console.log("Closer");
+            this.stopGeoWatch()
             this.setState({
               locationFeedBack: "Please move around for a better reading.",
             });

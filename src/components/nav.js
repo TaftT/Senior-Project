@@ -56,11 +56,11 @@ constructor(props) {
                         </svg>
                         <p className="text-sm">Explore</p>
                     </Link>
-                    <Link className="flex flex-col items-center justify-between cursor-pointer hover:bg-gray-100 w-1/3 p-2">
+                    <Link to="/points" className="flex flex-col items-center justify-between cursor-pointer hover:bg-gray-100 w-1/3 p-2">
                         <svg xmlns="http://www.w3.org/2000/svg" width="34" height="39" viewBox="0 0 34 39" fill="none">
                             <path d="M0 6.09376V17.4815C0 18.7764 0.508482 20.018 1.4192 20.932L14.7763 34.3383C16.6737 36.2426 19.7473 36.2426 21.6446 34.3383L31.7763 24.1693C33.6737 22.265 33.6737 19.1801 31.7763 17.2758L18.4192 3.86954C17.5085 2.95548 16.2714 2.44513 14.9812 2.44513H3.64286C1.6317 2.43751 0 4.0752 0 6.09376ZM8.5 13.4063C7.1567 13.4063 6.07143 12.317 6.07143 10.9688C6.07143 9.62052 7.1567 8.53126 8.5 8.53126C9.8433 8.53126 10.9286 9.62052 10.9286 10.9688C10.9286 12.317 9.8433 13.4063 8.5 13.4063Z" fill="black"/>
                         </svg>
-                        <p className="text-sm">Spend Points</p>
+                        <p className="text-sm">Points</p>
                     </Link>
                 </div> 
                 

@@ -9,6 +9,7 @@ import Explore from "./pages/explore"
 import MyLocations from "./pages/myLocations"
 import Terms from "./pages/terms"
 import NotFound from "./pages/notFound"
+import Points from "./pages/points"
 
 
 function App() {
@@ -24,6 +25,7 @@ function App() {
         <Route exact path='/explore' element={<Explore/>}/>
         <Route exact path='/myLocations' element={<MyLocations/>}/>
         <Route exact path='/terms' element={<Terms/>}/>
+        <Route exact path='/points' element={<Points/>}/>
         <Route path="*" element={<NotFound/>}/>
       </Routes>
       {/* Mobile only VVV */}
