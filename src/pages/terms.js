@@ -33,7 +33,7 @@ constructor(props) {
 
         <p className='mb-2'>(d) Prohibited Conduct. You agree not to use the Service for any purpose that is unlawful, infringing, or otherwise prohibited by these terms and conditions. Without limiting the generality of the foregoing, you agree not to:</p>
         <div className='ml-10'>
-            <p className='mb-2'>(i) Trespass on private property or any location that is not open to the public; Harm property of the location visited or surrounding property</p>
+            <p className='mb-2'>(i) Trespass on private property or any location that is not open to the public; Harm property of the location visited or surrounding property.</p>
 
             <p className='mb-2'>(ii) Upload, post, email, or otherwise transmit any content that is false, inaccurate, misleading, or fraudulent;</p>
 
@@ -80,6 +80,16 @@ constructor(props) {
 
         <p className='mb-2'>Participants assume all risk and liability for any harm caused to property resulting from their use of the app.</p> 
 
+        <h3 className='font-bold text-l mt-4'>Trespassing:</h3>
+
+        <p className='mb-2'>Users of our website are solely responsible for their actions and decisions. We strongly advise all users to exercise caution and diligence before entering any property. Users must evaluate whether an area is private property and whether they have received permission to enter private property. If you are unsure whether you have permission to enter onto a property, you should not enter the property without first obtaining explicit permission. Look for signs or other indicators that indicate whether the property is private or public. Private property signs, no trespassing signs, or fences are common indicators that a property is private and entry is restricted.</p>
+
+        <p className='mb-2'>A pinned location on our website does not provide sufficient permission to enter a location. Users must obtain explicit permission (Posted Sign or Verbal) from the property owner or authorized representative before entering any private property.</p>
+
+        <p className='mb-2'>We will not be held responsible for any damages, losses, or injuries that may result from trespassing or other unauthorized activities on private property.</p>
+
+        <p className='mb-2'>Users agree to indemnify and hold PinDasher and its affiliates, officers, directors, agents, and employees harmless from any claim, demand, or damage, including reasonable attorneys' fees, arising out of their use of the app, their violation of these Terms of Service, or their violation of any rights of another.</p>
+
         <h2 className='font-bold text-xl mt-4'>Indemnification:</h2>
 
         <p className='mb-2'>You agree to indemnify, defend, and hold harmless PinDasher, its officers, directors, employees, agents, licensors, and suppliers from and against all claims, losses, liabilities, expenses, damages, and costs, including reasonable attorneys’ fees, arising from or relating to:</p>
@@ -90,9 +100,6 @@ constructor(props) {
             <li>Your violation of any rights of another</li>
             <li>Your conduct in connection with the app</li>
         </ol>
-
-
-        <p className='mb-2'>Users agree to indemnify and hold PinDasher and its affiliates, officers, directors, agents, and employees harmless from any claim, demand, or damage, including reasonable attorneys' fees, arising out of their use of the app, their violation of these Terms of Service, or their violation of any rights of another.</p>
 
         <h2 className='font-bold text-xl mt-4'>Termination:</h2>
 
@@ -199,11 +206,11 @@ constructor(props) {
 
         <p className='mb-2'>By using PinDasher, you agree to these Terms of Service, Privacy Policy, and Raffle Drawing Rules. If you do not agree with these policies, you should not use the app.</p>
 
-        <p className='mb-2'>These Terms and Conditions were last updated on March 31, 2023.</p>
+        <p className='mb-2'>These Terms and Conditions were last updated on April 16, 2023.</p>
 
         <h1 className='font-bold text-3xl mb-5'>Safty Tips:</h1>
 
-        <p className='mb-2'><b>Be aware of your surroundings:</b> Always be aware of your surroundings while using PinDasher. Watch where you are walking and avoid walking into traffic, bodies of water, or other dangerous areas.</p>
+        <p className='mb-2'><b>Be aware of your surroundings:</b> Always be aware of your surroundings while using PinDasher. Watch where you are walking and do not walk into traffic, bodies of water, or other dangerous areas.</p>
 
         <p className='mb-2'><b>Explore in groups:</b> Exploring in groups can be more fun and also safer. If you are Exploring with a group, you can watch each other's backs and be more aware of your surroundings.</p>
 
@@ -211,7 +218,7 @@ constructor(props) {
 
         <p className='mb-2'><b>Stay in well-lit areas:</b> Avoid exploring in areas that are poorly lit or that have limited visibility. Stick to well-lit streets and paths, and avoid alleys or other areas that could be dangerous.</p>
 
-        <p className='mb-2'><b>Don't trespass:</b> Respect other people's property and stay out of private areas. Don't go into someone's backyard or climb over fences or walls to reach a location.</p>
+        <p className='mb-2'><b>Don't trespass:</b> Respect other people's property and stay out of private areas. Don't go into someone's backyard or climb over fences or walls to reach a location. When posting a location make sure to clearly give permission to enter the poperty by Posting Signs or Verbaly tell people.</p>
 
         <p className='mb-2'><b>Be aware of the weather:</b> Don't play in extreme weather conditions, such as during a thunderstorm, heat wave, or blizzard. Stay hydrated and dress appropriately for the weather.</p>
 

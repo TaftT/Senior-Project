@@ -12,6 +12,21 @@ class Explore extends React.Component {
 constructor(props) {
     super(props);
 
+    let tips = ["Walking around while verifying your location will give more accurate position",
+    "Be aware of your surroundings and watch where you are walking",
+    "Explore in groups or with a partner, Invite Your friends to use Pin Dasher",
+    "Use the buddy system",
+    "Stay in well-lit areas",
+    "Don't trespass: stay out of private property",
+    "Be aware of the weather",
+    "Stay hydrated",
+    "Be cautious with strangers",
+    "Respect other people's property: Do not harm it",
+    "Provide value to our Pin Dasher community by staying longer at locations and supporting business owners.",
+    // "Unsponsored points count towards! Go to sponsored locations to earn points to spend on raffles."
+ 
+]
+
     this.state = {
         loading:false,
         user:{},
@@ -40,6 +55,8 @@ constructor(props) {
         buttonClass:"",
         testing:false,
         listOfVisitedIds:[],
+        randomTip:Math.floor(Math.random() * tips.length),
+        tips:tips
         // getmylocation:false
     };
 }
@@ -624,6 +641,11 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
             
             
             <main className='p-5 w-full'>
+            <div className={'flex flex-col w-full justify-center items-center rounded-md bg-gray-400 text-white font-bold p-1 mb-5'}>
+                <p className='text-center text-sm'>Tips:</p>
+                <p className='text-center'>{this.state.tips[this.state.randomTip]}</p>  
+                
+            </div>
             {this.state.loading?
                 <h1 className='text-center w-5/6 font-bold text-3xl'>Loading...</h1>
                 :
@@ -692,6 +714,12 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                             }
                                         </>
                                     }
+                                    <div className="flex justify-between mb-2">
+                                        <div className={'flex flex-col w-full justify-center items-center rounded-md bg-gray-400 text-white font-bold p-1'}>
+                                            <p className='text-center text'>Apx Diameter in Feet: {this.state.selectedLocation.radius*2}</p>  
+                                            <p className='text-sm'> </p>
+                                        </div>
+                                    </div>
                                    
                                     <div className="flex justify-between">
                                         

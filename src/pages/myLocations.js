@@ -973,6 +973,137 @@ getLocation(){
     })
 }
 
+getLocationAverage() {
+    return new Promise(async (resolve, reject) => {
+      const options = {
+        enableHighAccuracy: true,
+        maximumAge: 5000,
+        timeout: 10000,
+      };
+      let collectGoal = 20
+      let count = 0;
+      let lat = 0;
+      let long = 0;
+      let acc = 0;
+      let alt = 0;
+      let altAcc = 0;
+      let head = 0;
+      let speed = 0;
+      const startTime = new Date()
+  
+      const success = (pos) => {
+        
+            const crd = pos.coords;
+        console.log("getLocation");
+  
+        lat += crd.latitude;
+        long += crd.longitude;
+        acc += crd.accuracy;
+        alt += crd.altitude;
+        altAcc += crd.altitudeAccuracy;
+        head += crd.heading;
+        speed += crd.speed;
+  
+        count++;
+  
+        if (count === collectGoal || new Date() - startTime >= 5000) {
+          lat /= count;
+          long /= count;
+          acc /= count;
+          alt /= count;
+          altAcc /= count;
+          head /= count;
+          speed /= count;
+  
+          if (
+            this.state.latitude !== lat ||
+            this.state.longitude !== long ||
+            this.state.heading !== head ||
+            this.state.speed !== speed
+          ) {
+            this.setState(
+              {
+                newSnap: false,
+                accuracy: acc,
+                latitude: lat,
+                longitude: long,
+                altitude: alt,
+                altitudeAccuracy: altAcc,
+                heading: head,
+                speed: speed,
+              },
+              () => {
+                if(!this.state.arrived){
+                    const arrived = this.checkLocation();
+                    if (arrived) {
+                    this.visited();
+                    }
+                }
+                this.stopGeoWatch()
+              }
+            );
+          } else {
+            console.log("Closer");
+            this.setState({
+              locationFeedBack: "Please move around for a better reading.",
+            });
+          }
+          resolve(true);
+        } 
+        // else if(count == 1){
+        //     console.log("location set")
+        //     this.setState(
+        //         {
+        //           
+        //           newSnap: false,
+        //           accuracy: crd.accuracy,
+        //           latitude: crd.latitude,
+        //           longitude: crd.longitude,
+        //           altitude: crd.altitude,
+        //           altitudeAccuracy: crd.altitudeAccuracy,
+        //           heading: crd.heading,
+        //           speed: crd.speed,
+        //         },
+        //         () => {
+                  
+        //         }
+        //       );
+        // }
+      };
+  
+      const error = (err) => {
+        const { code } = err;
+        let feedback = ""
+        switch (code) {
+            case "TIMEOUT":
+            // Handle timeout.
+            
+            break;
+            case "PERMISSION_DENIED":
+            // User denied the request.
+            feedback = "Please grant location permissions to this site"
+            break;
+            case "POSITION_UNAVAILABLE":
+            // Position not available.
+            feedback = "Cannot get Location"
+            break;
+        }
+        this.setState({ cannotgettingLocation: true, gettingLocation:false ,locationFeedBack:feedback});
+        console.warn(`ERROR(${err.code}): ${err.message}`);
+        reject(err);
+        
+      };
+  
+      let GEOID = navigator.geolocation.watchPosition(success, error, options);
+
+      this.setState({ gettingLocation: true, GEOID: GEOID, locationFeedBack:"Please 5 seconds to verify your Location"  });
+    });
+  }
+stopGeoWatch() {
+    navigator.geolocation.clearWatch(this.state.GEOID);
+    this.setState({GEOID:-1,gettingLocation:false})
+  }
+
 
 async savePoints(location){
     if(location.newAvailablePoints && location.newAvailablePoints != location.availablePoints){
@@ -1067,7 +1198,7 @@ componentDidMount() {
                                     !this.state.cannotgettingLocation?
                                     <button className="flex mb-5 justify-center items-center rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5'"
                                         onClick={()=>{
-                                            this.getLocation().then(()=>{
+                                            this.getLocationAverage().then(()=>{
                                                 this.setState({locationConfirmed:false,
                                                     newLocationPin:this.state.editing,
                                                     position:{
@@ -1081,7 +1212,7 @@ componentDidMount() {
                                                     console.log(this.state.position)
                                                 })
                                             })
-                                        }}>Pin My location</button>
+                                        }}>{this.state.locationFeedBack?this.state.locationFeedBack:"Pin My location"}</button>
                                 :
                                 <button disabled={true} className="flex flex-col mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full mb-5'"
                                ><p>Cannot access your location</p>
@@ -1118,7 +1249,7 @@ componentDidMount() {
                             }
                  
                             <div  className="mb-3">
-                                <label className="font-bold text-sm">Geofence Radius in Yards</label>
+                                <label className="font-bold text-sm">Geofence Radius in Feet</label>
                                 <input className='w-full p-2 rounded-md border-2' name="Radius" type="number" defaultValue={this.state.radius} max={200} min={1} step={1} placeholder="Geofence Radius in feet" 
                                 onChange={(e)=>{
                                 
