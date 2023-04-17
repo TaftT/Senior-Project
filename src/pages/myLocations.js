@@ -638,7 +638,7 @@ autoFillFor(location){
                 img1URL:location.img1URL,
                 img2URL:location.img2URL,
             },()=>{
-                console.log("there")
+
                 resolve(true)
             })
 
@@ -693,10 +693,10 @@ deleteFile(imageURL,imageSpot,locationId){
             let imageNameEncoded = splitUrl[splitUrl.length-1].split("?")[0]
             let imageName = decodeURI(imageNameEncoded)
             let imageFileName = imageName.split("%2F")
-            console.log(imageFileName[0]+"/"+imageFileName[1])
+            // console.log(imageFileName[0]+"/"+imageFileName[1])
             const fileRef = ref(storage,imageFileName[0]+"/"+imageFileName[1])
             deleteObject(fileRef).then(async (res)=>{
-                console.log(res)
+                // console.log(res)
                 const locationDoc = doc(db, "locations", locationId)
                 if(imageSpot==='logo'){
                     await updateDoc(locationDoc, {logoURL:""})
@@ -728,13 +728,13 @@ async locationSave(data){
         let img2URL=this.state.img1URL
         let logoURL=this.state.logoURL
         
-        if(this.state.logoFile && this.state.logoURL !==""){
+        if(this.state.logoFile && !this.state.logoURL){
             logoURL = await this.uploadFile(this.state.logoFile,"locationLogos",data.locationName+" logo")
         }
-         if(this.state.img1File && this.state.img1URL !==""){
+         if(this.state.img1File && !this.state.img1URL){
             img1URL = await this.uploadFile(this.state.img1File,"locationImages",data.locationName+" img1")
         }
-        if(this.state.img2File && this.state.img2URL !==""){
+        if(this.state.img2File && !this.state.img2URL){
             img2URL = await this.uploadFile(this.state.img2File,"locationImages",data.locationName+" img2")
         }
         const dataCollection = collection(db,"locations")
@@ -775,20 +775,24 @@ async locationSave(data){
 }
 
 async saveEditedLocation(data,id){
+    console.log("saveEditedLocation")
     try{
         let img1URL=this.state.img1URL 
         let img2URL=this.state.img2URL
         let logoURL=this.state.logoURL
+       
+        if(this.state.logoFile && !this.state.logoURL){
         
-        if(this.state.logoFile && this.state.logoURL !==""){
             logoURL = await this.uploadFile(this.state.logoFile,"locationLogos",data.locationName+" logo")
+     
         }
-         if(this.state.img1File && this.state.img1URL !==""){
+         if(this.state.img1File && !this.state.img1URL ){
             img1URL = await this.uploadFile(this.state.img1File,"locationImages",data.locationName+" img1")
         }
-        if(this.state.img2File && this.state.img2URL !==""){
+        if(this.state.img2File && !this.state.img2URL){
             img2URL = await this.uploadFile(this.state.img2File,"locationImages",data.locationName+" img2")
         }
+        this.setState({logoFile:null,img1File:null,img2File:null})
         const dataDoc = doc(db,"locations",id)
         let newLocation = await updateDoc(dataDoc,{
             active:true,
@@ -813,7 +817,6 @@ async saveEditedLocation(data,id){
                 ...doc.data(),
                 id: doc.id
             }))
-            console.log(data)
             const openHoursDoc = doc(db,"hoursOpen",filteredData[0].id)
             let newHours = await updateDoc(openHoursDoc,{
                 sunday:data.sunday,
@@ -824,6 +827,8 @@ async saveEditedLocation(data,id){
                 friday:data.friday,
                 saturday:data.saturday
             })
+            this.loadLocations()
+            this.clearForm()
         })  
     } catch (error){
         console.log(error)
@@ -866,30 +871,32 @@ toRadians(degrees) {
 
 
   checkLocation() {
-    
-        console.log("check")
+        this.getLocationAverage().then(()=>{
+            
+            const radius = this.state.radius; // 50 feet
+            const earthRadius = 6371000; // meters
+            const latDistance = this.toRadians(this.state.position.latitude - this.state.latitude);
+            const lonDistance = this.toRadians(this.state.position.longitude - this.state.longitude);
+            const a =
+            Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
+            Math.cos(this.toRadians(this.state.latitude)) *
+                Math.cos(this.toRadians(this.state.longitude)) *
+                Math.sin(lonDistance / 2) *
+                Math.sin(lonDistance / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distance = earthRadius * c;
+            let arrived = distance <= radius
+   
+            if(arrived){
+                this.setState({arrived:arrived,locationButtonColor:"bg-green-600 hover:bg-green-700",})
+            } else {
+                this.setState({arrived:arrived,locationButtonColor:"bg-red-700 hover:bg-red-800"})
+            }
+            
+            return arrived;  
+
+        })
         
-        const radius = this.state.radius; // 50 feet
-        const earthRadius = 6371000; // meters
-        const latDistance = this.toRadians(this.state.position.latitude - this.state.latitude);
-        const lonDistance = this.toRadians(this.state.position.longitude - this.state.longitude);
-        const a =
-        Math.sin(latDistance / 2) * Math.sin(latDistance / 2) +
-        Math.cos(this.toRadians(this.state.latitude)) *
-            Math.cos(this.toRadians(this.state.longitude)) *
-            Math.sin(lonDistance / 2) *
-            Math.sin(lonDistance / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = earthRadius * c;
-        let arrived = distance <= radius
-        console.log(arrived)
-        if(arrived){
-            this.setState({arrived:arrived,locationButtonColor:"bg-green-600 hover:bg-green-700",})
-        } else {
-            this.setState({arrived:arrived,locationButtonColor:"bg-red-700 hover:bg-red-800"})
-        }
-        
-        return arrived;  
 
   }
 
@@ -948,7 +955,7 @@ getLocation(){
           };
         const success = (pos) => {
             const crd = pos.coords;
-            console.log("getLocation")
+      
           
             this.setState({
             gettingLocation:true,
@@ -994,7 +1001,7 @@ getLocationAverage() {
       const success = (pos) => {
         
             const crd = pos.coords;
-        console.log("getLocation");
+       
   
         lat += crd.latitude;
         long += crd.longitude;
@@ -1031,13 +1038,14 @@ getLocationAverage() {
                 altitudeAccuracy: altAcc,
                 heading: head,
                 speed: speed,
+                locationFeedBack: "RePin My location",
               },
               () => {
                 this.stopGeoWatch()
               }
             );
           } else {
-            console.log("Closer");
+            
             this.stopGeoWatch()
             this.setState({
               locationFeedBack: "Please move around for a better reading.",
@@ -1135,7 +1143,7 @@ async subPoints(index){
 
 componentDidMount() {
     getUser().then((user)=>{
-        console.log(user)
+        
         this.setState({user:user},()=>{
             this.getLocation().then(()=>{
                 this.loadLocations()
@@ -1204,7 +1212,7 @@ componentDidMount() {
                                                 }},
                                                 ()=>{
                                                     this.checkLocation()
-                                                    console.log(this.state.position)
+                                                   
                                                 })
                                             })
                                         }}>{this.state.locationFeedBack?this.state.locationFeedBack:"Pin My location"}</button>
@@ -1220,10 +1228,8 @@ componentDidMount() {
                             <div className="flex mb-5">
                                     <button className={'flex justify-center items-center rounded-md text-white font-bold p-3 w-1/2 '+this.state.locationButtonColor}
                                     onClick={()=>{
-                                        this.getLocation().then(()=>{
-                                             this.checkLocation()
-                                            this.setState({locationConfirmed:true})
-                                        })
+                                        this.checkLocation()
+                                        this.setState({locationConfirmed:true})
                                         
                                     }}>
                                         {
@@ -1253,11 +1259,15 @@ componentDidMount() {
                             </div>
                             <Form id="createLocation" fields={this.state.formFeilds} callBack={(data)=>{
                                 this.setState({errorMsg:"",buttonDisable:true})
-                                console.log(this.state.position)
-                                if(this.state.position!={}){
+                             
+                                if(this.state.position.latitude && this.state.position.longitude){
+ 
                                     if(this.state.locationConfirmed || (this.state.editing && !this.state.newLocationPin) || (this.state.editing && this.state.newLocationPin && this.state.locationConfirmed)){
+                                   
                                         if(data.locationName && data.description){
+                               
                                             if(!data.agreement.includes(false)){
+    
                                                 let schedule = {
                                                     sunday:data.sunday,
                                                     monday:data.monday,
@@ -1279,6 +1289,7 @@ componentDidMount() {
                                                         return
                                                     });
                                                 } else{
+                                                   
                                                     if(!this.state.editing){
                                                         this.locationSave(data)
                                                     } else {
@@ -1288,7 +1299,7 @@ componentDidMount() {
                                                     this.setState({locationInputScreen:false,buttonDisable:false},()=>{
                                                         this.loadLocations()
                                                     })
-                                                    console.log(data)
+                                                   
                                                 }
                 
                                             }else {
@@ -1409,8 +1420,8 @@ componentDidMount() {
                                     this.state.selectedLocation.img2URL?.includes("firebasestorage.googleapis.com")?
                                     <button className='rounded-md bg-red-700 text-white font-bold p-3 w-full hover:bg-red-600' 
                                             onClick={()=>{
-                                                console.log(this.state.selectedLocation.id)
-                                                // this.deleteFile(this.state.selectedLocation.img2URL,"img2",this.state.selectedLocation.id)
+                                                
+                                                this.deleteFile(this.state.selectedLocation.img2URL,"img2",this.state.selectedLocation.id)
                                             }}
                                         >Remove</button>
                                     :
@@ -1518,9 +1529,9 @@ componentDidMount() {
                                     <div className="flex ">
                                         <button className='flex justify-center items-center rounded-md bg-yellow-500 text-white font-bold p-3 w-1/2 hover:bg-yellow-400'
                                             onClick={()=>{
-                                                console.log(location)
+                                                // console.log(location)
                                                 this.autoFillFor(location).then(()=>{
-                                                    console.log("here")
+                                                    // console.log("here")
                                                     this.setState({locationInputScreen:true,selectedLocation:location})
                                                 })
                                             }}

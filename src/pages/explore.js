@@ -22,6 +22,7 @@ constructor(props) {
     "Stay hydrated",
     "Be cautious with strangers",
     "Respect other people's property: Do not harm it",
+    "Refresh while exploring to sort the location based on your location",
     "Provide value to our Pin Dasher community by staying longer at locations and supporting business owners.",
     // "Unsponsored points count towards! Go to sponsored locations to earn points to spend on raffles."
  
