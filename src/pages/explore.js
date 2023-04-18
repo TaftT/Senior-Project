@@ -8,6 +8,10 @@ import Map from '../components/map'
 let ORIENTATIONCOUNTER = 0
 let LOCATIONCOUNTER = 0
 
+function scrollToTop() {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
 class Explore extends React.Component {
 constructor(props) {
     super(props);
@@ -459,6 +463,8 @@ stopGeoWatch() {
     this.setState({GEOID:-1,gettingLocation:false})
   }
 
+
+
 async giveUserPoints(){
     return new Promise(async (resolve, reject) =>  {
         try{
@@ -472,7 +478,7 @@ async giveUserPoints(){
                         id: doc.id
                     })));
                     this.setState({userPoints:filteredPoints[0]},async ()=>{
-                        
+                        //check if points are still available
                         let userPoints = filteredPoints[0]
                         let location = this.state.selectedLocation
                         console.log(userPoints, location, this.state.selectedLocation.id)
@@ -702,6 +708,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                             <div>
                                 <div className='flex justify-between'>
                                     <div className="w-1/6" onClick={()=>{
+                                        scrollToTop()
                                         this.setState({selectedLocation:null,buttonClass:"",locationFeedBack:"",arrived:false})
                                     }}>
                                         <svg className="w-10 h-10" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l128-128c9.2-9.2 22.9-11.9 34.9-6.9s19.8 16.6 19.8 29.6l0 256c0 12.9-7.8 24.6-19.8 29.6s-25.7 2.2-34.9-6.9l-128-128z"/></svg>
@@ -865,6 +872,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                             onClick={()=>{
                                                 let hours=this.state.hoursOpen[this.state.hourLocationIndex.indexOf(location.id)]
                                                 this.setState({selectedLocation:location,selectedLocationHours:hours,selectedLocationIsOpen:this.isOpen(location.id)[0]},()=>{
+                                                    scrollToTop()
                                                     this.createVisitLog()
                                                 })
                                             }}>
