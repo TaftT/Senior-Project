@@ -462,7 +462,7 @@ stopGeoWatch() {
 async giveUserPoints(){
     return new Promise(async (resolve, reject) =>  {
         try{
-            if(this.state.selectedLocation && this.state.selectedLocation.availablePoints>=10 && this.state.arrived){
+            if(this.state.selectedLocation && this.state.selectedLocation.availablePoints>=10 ){
                 const pointsCollection = collection(db,"userPoints")
                 // console.log(this.state.user.uid,this.state.selectedLocation)
                 let q = query(pointsCollection,where("userId", "==", this.state.user.uid))
@@ -472,15 +472,19 @@ async giveUserPoints(){
                         id: doc.id
                     })));
                     this.setState({userPoints:filteredPoints[0]},async ()=>{
+                        
+                        let userPoints = filteredPoints[0]
+                        let location = this.state.selectedLocation
+                        console.log(userPoints, location)
                         const dataDoc = doc(db,"locations",this.state.selectedLocation.id)
                         let newLocation = await updateDoc(dataDoc,{
-                            availablePoints:this.state.selectedLocation.availablepoints-10,
-                            totalVisits:this.state.selectedLocation.totalVisits+1,
+                            availablePoints:location.availablePoints-10,
+                            totalVisits:location.totalVisits+1,
                         })
                         const userPointsDoc = doc(db,"userPoints",this.state.userPoints.id)
                         await updateDoc(userPointsDoc,{
-                            totalPointsEarned:this.userPoints.totalPointsEarned+10,
-                            totalVisits:this.userPoints.totalVisits,
+                            totalPointsEarned:userPoints.totalPointsEarned+10,
+                            totalVisits:userPoints.totalVisits,
                             userId:this.state.user.uid
                         })
                         resolve(true)
@@ -674,19 +678,10 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                     onClick={()=>{
                         this.resetVisit()
                     }}>reset location</button>
-                    {/* <button className="mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full"
+                    <button className="mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full"
                     onClick={async ()=>{
-                        const userPoints = collection(db,"userPoints")
-                        let newUserPoints = await addDoc(userPoints,{
-                            userId:"new",
-                            availableFree:300,
-                            availablePaid:0,
-                            totalPointsEarned:0,
-                            pointsNotSpent:0,
-                            totalVisits:0,
-                            totalUniqueVisits:0
-                        })
-                    }}>new points</button> */}
+                        this.giveUserPoints()
+                    }}>test</button>
                 </div>
                 :
                 <></>
