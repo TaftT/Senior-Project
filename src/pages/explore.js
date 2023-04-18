@@ -484,7 +484,7 @@ async giveUserPoints(){
                         const userPointsDoc = doc(db,"userPoints",this.state.userPoints.id)
                         await updateDoc(userPointsDoc,{
                             totalPointsEarned:userPoints.totalPointsEarned+10,
-                            totalVisits:userPoints.totalVisits,
+                            totalVisits:userPoints.totalVisits+1,
                         })
                         resolve(true)
                     })
@@ -659,7 +659,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                 :
                 <></>
             }
-            {
+            {/* {
                 this.state.testing?
                 <div>
                     <p>lat:{this.state.latitude}</p>
@@ -684,7 +684,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                 </div>
                 :
                 <></>
-            }
+            } */}
             
             
             <main className='p-5 w-full'>
