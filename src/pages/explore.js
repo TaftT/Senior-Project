@@ -22,7 +22,7 @@ constructor(props) {
     "Stay hydrated",
     "Be cautious with strangers",
     "Respect other people's property",
-    "Refresh while exploring to sort the location based on your location",
+    "Refresh you page while exploring to sort the location based on your location",
     "Provide value to our Pin Dasher community by staying longer at locations and supporting business owners.",
     // "Unsponsored points count towards! Go to sponsored locations to earn points to spend on raffles."
  
@@ -475,7 +475,7 @@ async giveUserPoints(){
                         
                         let userPoints = filteredPoints[0]
                         let location = this.state.selectedLocation
-                        console.log(userPoints, location)
+                        console.log(userPoints, location, this.state.selectedLocation.id)
                         const dataDoc = doc(db,"locations",this.state.selectedLocation.id)
                         let newLocation = await updateDoc(dataDoc,{
                             availablePoints:location.availablePoints-10,
@@ -485,7 +485,6 @@ async giveUserPoints(){
                         await updateDoc(userPointsDoc,{
                             totalPointsEarned:userPoints.totalPointsEarned+10,
                             totalVisits:userPoints.totalVisits,
-                            userId:this.state.user.uid
                         })
                         resolve(true)
                     })
@@ -517,8 +516,8 @@ visited(){
                 await updateDoc(visitsDoc, {dateVisited:timestamp}) 
                 this.giveUserPoints().then(()=>{
                     this.loadLocations()
+                    return
                 })
-                return
             } else {
                 return false
             }

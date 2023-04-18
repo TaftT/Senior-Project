@@ -83,6 +83,7 @@ constructor(props) {
                     "Beach",
                     "Books",
                     "Botanical Garden",
+                    "Building",
                     "Campground",
                     "Cinema",
                     "Clothing",
@@ -101,6 +102,7 @@ constructor(props) {
                     "Home improvement",
                     "Jewelry",
                     "Market",
+                    "Monument",
                     "Museum",
                     "Music",
                     "National Park",
@@ -130,6 +132,7 @@ constructor(props) {
                     "Beach",
                     "Books",
                     "Botanical Garden",
+                    "Building",
                     "Campground",
                     "Cinema",
                     "Clothing",
@@ -148,6 +151,7 @@ constructor(props) {
                     "Home improvement",
                     "Jewelry",
                     "Market",
+                    "Monument",
                     "Museum",
                     "Music",
                     "National Park",
@@ -280,6 +284,7 @@ clearForm(){
                     "Beach",
                     "Books",
                     "Botanical Garden",
+                    "Building",
                     "Campground",
                     "Cinema",
                     "Clothing",
@@ -298,6 +303,7 @@ clearForm(){
                     "Home improvement",
                     "Jewelry",
                     "Market",
+                    "Monument",
                     "Museum",
                     "Music",
                     "National Park",
@@ -317,7 +323,7 @@ clearForm(){
                     "Toys",
                     "University",
                     "Zoo"
-                    ],
+                  ],
                 label:[
                     "Activity",
                     "Antiques",
@@ -327,6 +333,7 @@ clearForm(){
                     "Beach",
                     "Books",
                     "Botanical Garden",
+                    "Building",
                     "Campground",
                     "Cinema",
                     "Clothing",
@@ -345,6 +352,7 @@ clearForm(){
                     "Home improvement",
                     "Jewelry",
                     "Market",
+                    "Monument",
                     "Museum",
                     "Music",
                     "National Park",
@@ -364,7 +372,7 @@ clearForm(){
                     "Toys",
                     "University",
                     "Zoo"
-                    ],
+                  ],
                 placeHolder:"Category",
                 selected:"Activity",
                 },
@@ -491,6 +499,7 @@ autoFillFor(location){
                         "Beach",
                         "Books",
                         "Botanical Garden",
+                        "Building",
                         "Campground",
                         "Cinema",
                         "Clothing",
@@ -509,6 +518,7 @@ autoFillFor(location){
                         "Home improvement",
                         "Jewelry",
                         "Market",
+                        "Monument",
                         "Museum",
                         "Music",
                         "National Park",
@@ -538,6 +548,7 @@ autoFillFor(location){
                         "Beach",
                         "Books",
                         "Botanical Garden",
+                        "Building",
                         "Campground",
                         "Cinema",
                         "Clothing",
@@ -556,6 +567,7 @@ autoFillFor(location){
                         "Home improvement",
                         "Jewelry",
                         "Market",
+                        "Monument",
                         "Museum",
                         "Music",
                         "National Park",
@@ -1214,11 +1226,7 @@ componentDidMount() {
         }
             
             <main className='p-5 w-full'>
-                <div className={'flex flex-col w-full justify-center items-center rounded-md bg-gray-400 text-white font-bold p-1 mb-5'}>
-                    <p className='text-center text-lg'>Available Points: {this.state.userPoints.newAvailableFreePoints || this.state.userPoints.newAvailableFreePoints==0?this.state.userPoints.newAvailableFreePoints:this.state.userPoints.availableFree}</p>
-                    
-                    
-                </div>
+                
                 {
                     this.state.locationInputScreen?
 
@@ -1528,6 +1536,9 @@ componentDidMount() {
                                 this.setState({locationInputScreen:true})
                             }}
                         >New Location</button>
+                        <div className={'flex flex-col w-full justify-center items-center rounded-md bg-gray-400 text-white font-bold p-1 mb-5'}>
+                            <p className='text-center text-lg'>Available Points: {this.state.userPoints.newAvailableFreePoints || this.state.userPoints.newAvailableFreePoints==0?this.state.userPoints.newAvailableFreePoints:this.state.userPoints.availableFree}</p>
+                        </div>
                     {
                         this.state.locations.map((location,index)=>{
                             return(

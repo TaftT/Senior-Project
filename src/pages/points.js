@@ -1,7 +1,7 @@
 import React from 'react';
 import Nav from '../components/nav'
 import {db,getUser,storage} from '../config/firebase'
-import {getDocs,collection, query, orderBy, limit } from "firebase/firestore"
+import {getDocs,collection, query, orderBy, limit, where } from "firebase/firestore"
 
 // #region constants
 
@@ -22,7 +22,9 @@ constructor(props) {
     super(props);
 
     this.state = {
-        topPoints:[]
+        user:{},
+        topPoints:[],
+        userPoints:{}
     };
 }
 
@@ -30,7 +32,6 @@ async getTopPoints(){
     return new Promise(async (resolve, reject) => {
         try{
             const pointsCollection = collection(db,"userPoints")
-            console.log(this.state.user.uid,this.state.selectedLocation)
             let q = query(pointsCollection,orderBy("totalPointsEarned", "desc"), limit(10))
             getDocs(q).then(async (res)=>{
                 const filteredPoints = await Promise.all(res.docs.map(async (doc)=>({
@@ -48,11 +49,30 @@ async getTopPoints(){
     
 }
 
+async getUserPoints(){
+    try{
+        const pointsCollection = collection(db,"userPoints")
+        console.log(this.state.user.uid,this.state.selectedLocation)
+        let q = query(pointsCollection,where("userId", "==", this.state.user.uid))
+        getDocs(q).then(async (res)=>{
+            const filteredPoints = await Promise.all(res.docs.map(async (doc)=>({
+                ...doc.data(),
+                id: doc.id
+            })));
+            this.setState({userPoints:filteredPoints[0]},()=>{console.log(this.state.userPoints)})
+        })
+    } catch(error){
+        console.log(error)
+        return false
+    }
+}
+
 
 componentDidMount() {
     this.setState({loading:true})
     getUser().then((user)=>{
         this.setState({user:user},()=>{
+            this.getUserPoints()
             this.getTopPoints().then(()=>{
                 
             })
@@ -71,13 +91,21 @@ componentDidMount() {
             
             <main className='p-5 w-full'>
                 <h1 className='text-center font-bold text-3xl mb-5'>Leaderboard</h1>
+                <h1 className='text-center font-bold text-xl mb-5'>Your Stats</h1>
+
+                <div className={'flex flex-col w-full justify-center items-center rounded-md bg-gray-400 text-white font-bold p-1 mb-5'}>
+                    <p className='text-center text-lg'>Username: {this.state.userPoints.username}</p>
+                    <p className='text-center text-lg'>Total Points: {this.state.userPoints.totalPointsEarned}</p>
+                    <p className='text-center text-lg'>Total Visits: {this.state.userPoints.totalVisits}</p>
+                </div>
+
                 <h1 className='text-center font-bold text-xl mb-5'>Top Ten</h1>
                 <table className="min-w-full text-left text-sm font-light bg-white">
                     <thead className="border-b font-medium dark:border-neutral-500">
                     <tr>
                         <th scope="col" className="px-6 py-4">Rank</th>
                         <th scope="col" className="px-6 py-4">Username</th>
-                        <th scope="col" className="px-6 py-4">Points</th>
+                        <th scope="col" className="px-6 py-4">Total Points</th>
                     </tr>
                     </thead>
                     <tbody>

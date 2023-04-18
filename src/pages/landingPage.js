@@ -14,14 +14,16 @@ constructor(props) {
   render() {
     return (
       <>
+      <main className='p-5 w-full'>
+          <Link to="/signUp">
+              <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mt-5 mb-5 hover:bg-sky-700'>Sign Up</button>
+          </Link>
       {
         this.state.advertizing?
-        <main className='p-5 w-full'>
+        <div>
           <h1 className='text-center font-bold text-3xl mb-5'>Advertizing</h1>
           
-          <Link to="/signUp">
-              <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700'>Sign Up</button>
-          </Link>
+          
           <div className='p-5 w-full bg-white shadow-md rounded-md'>
             <ol className='list-disc ml-10 mb-2' type="i">
                 <li>Get more people to visit your business.</li>
@@ -34,18 +36,19 @@ constructor(props) {
               onClick={()=>{
                 this.setState({advertizing:false})
               }}
-            >Explore your Area</button>
+            >Learn More: Exploring Your Area</button>
           </div>
-        </main>
+          
+        </div>
+        
+          
+ 
 
         :
 
-        <main className='p-5 w-full'>
-          <h1 className='text-center font-bold text-3xl mb-5'>Exploring</h1>
+        <div>
+           <h1 className='text-center font-bold text-3xl mb-5'>Exploring</h1>
           
-          <Link to="/signUp">
-              <button className='rounded-md bg-sky-900 text-white font-bold p-3 w-full mb-5 hover:bg-sky-700'>Sign Up</button>
-          </Link>
           <div className='p-5 w-full bg-white shadow-md rounded-md'>
           <h1 className='font-bold text-3xl mb-5'>Welcome to PinDasher!</h1>
             <p>PinDasher is unique new app that gets you out and about to explore your community and score great prizes! With PinDasher, simply visit any of the participating businesses in your area to earn points. The more businesses you visit, the more points you'll rack up. And those points can be redeemed for fabulous prizes like restaurant gift cards, car washes, and much more. So get out there and start dashing to all the great places PinDasher takes you!</p>
@@ -53,17 +56,20 @@ constructor(props) {
               onClick={()=>{
                 this.setState({advertizing:true})
               }}
-            >Advertize Your Location</button>
+            >Learn More: Advertizing Your Location</button>
           </div>
+
+        </div>
+         
            
-        </main>
+       
 
       }
   
       
       
   
-        
+      </main>
   
       </>
     );
