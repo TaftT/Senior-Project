@@ -35,7 +35,6 @@ constructor(props) {
         locationInfo:{},
         position:{},
         errorMsg:"",
-        user:{},
         logoFile:null,
         img1File:null,
         img2File:null,
@@ -47,6 +46,7 @@ constructor(props) {
         editing:false,
         newLocationPin:false,
         selectedLocation:{},
+        userPoints:{},
         formFeilds: { 
             locationName:{
                 type:"text",
@@ -1109,42 +1109,81 @@ stopGeoWatch() {
 
 
 async savePoints(location){
-    if(location.newAvailablePoints && location.newAvailablePoints != location.availablePoints){
+    if((location.newAvailablePoints || location.newAvailablePoints ==0) && location.newAvailablePoints != location.availablePoints){
         const dataDoc = doc(db,"locations",location.id)
         await updateDoc(dataDoc,{
             availablePoints:location.newAvailablePoints
         })
+        const userPointsDoc = doc(db,"userPoints",this.state.userPoints.id)
+        await updateDoc(userPointsDoc,{
+            availableFree:this.state.userPoints.newAvailableFreePoints,
+            userId:this.state.user.uid
+        })
+        this.getUserPoints()
         this.loadLocations()
     }
 }
 
 async addPoints(index){
     let newLocations = this.state.locations
-    if( !newLocations[index].newAvailablePoints){
-        newLocations[index]["newAvailablePoints"]= newLocations[index].availablePoints + 10
-    } else {
-        newLocations[index].newAvailablePoints= newLocations[index].newAvailablePoints + 10
+    let newUserPoints = this.state.userPoints
+   
+    if(!newUserPoints.newAvailableFreePoints && newUserPoints.newAvailableFreePoints!=0){
+        const points = newUserPoints.availableFree
+        newUserPoints["newAvailableFreePoints"]=points
     }
-    this.setState({locations:newLocations})
+    if( !newLocations[index].newAvailablePoints && newUserPoints.newAvailableFreePoints>=10){
+        newLocations[index]["newAvailablePoints"]= newLocations[index].availablePoints + 10
+        newUserPoints.newAvailableFreePoints = newUserPoints.newAvailableFreePoints - 10
+    } else if( newUserPoints.newAvailableFreePoints>=10) {
+        newLocations[index].newAvailablePoints= newLocations[index].newAvailablePoints + 10
+        newUserPoints.newAvailableFreePoints = newUserPoints.newAvailableFreePoints - 10
+    } 
+    this.setState({locations:newLocations, userPoints:newUserPoints})
 }
 
 async subPoints(index){
     let newLocations = this.state.locations
+    let newUserPoints = this.state.userPoints
     let newPoints=0
-    if( !newLocations[index].newAvailablePoints){
+    if(!newUserPoints.newAvailableFreePoints && newUserPoints.newAvailableFreePoints!=0){
+        const points = newUserPoints.availableFree
+        newUserPoints["newAvailableFreePoints"]=points
+    }
+    if( !newLocations[index].newAvailablePoints && newLocations[index].newAvailablePoints !=0){
         newLocations[index]["newAvailablePoints"]= newLocations[index].availablePoints
     }
     if(newLocations[index].newAvailablePoints-10>0){
         newPoints = newLocations[index].newAvailablePoints-10
+        newUserPoints.newAvailableFreePoints = newUserPoints.newAvailableFreePoints  + 10
     }
     newLocations[index]["newAvailablePoints"]=newPoints
-    this.setState({locations:newLocations})
+    this.setState({locations:newLocations, userPoints:newUserPoints})
+}
+
+async getUserPoints(){
+    try{
+        const pointsCollection = collection(db,"userPoints")
+        console.log(this.state.user.uid,this.state.selectedLocation)
+        let q = query(pointsCollection,where("userId", "==", this.state.user.uid))
+        getDocs(q).then(async (res)=>{
+            const filteredPoints = await Promise.all(res.docs.map(async (doc)=>({
+                ...doc.data(),
+                id: doc.id
+            })));
+            this.setState({userPoints:filteredPoints[0]},()=>{console.log(this.state.userPoints)})
+        })
+    } catch(error){
+        console.log(error)
+        return false
+    }
 }
 
 componentDidMount() {
     getUser().then((user)=>{
         
         this.setState({user:user},()=>{
+            this.getUserPoints()
             this.getLocation().then(()=>{
                 this.loadLocations()
             })
@@ -1175,6 +1214,11 @@ componentDidMount() {
         }
             
             <main className='p-5 w-full'>
+                <div className={'flex flex-col w-full justify-center items-center rounded-md bg-gray-400 text-white font-bold p-1 mb-5'}>
+                    <p className='text-center text-lg'>Available Points: {this.state.userPoints.newAvailableFreePoints || this.state.userPoints.newAvailableFreePoints==0?this.state.userPoints.newAvailableFreePoints:this.state.userPoints.availableFree}</p>
+                    
+                    
+                </div>
                 {
                     this.state.locationInputScreen?
 
@@ -1187,6 +1231,7 @@ componentDidMount() {
                                 })
                             }}
                         >Back</button>
+
 
                         <div className='p-5 w-full bg-white shadow-md rounded-md'>
                             <Map render={this.state.position.latitude && this.state.position.longitude } latitude={this.state.position.latitude} longitude={this.state.position.longitude}/>
@@ -1505,7 +1550,7 @@ componentDidMount() {
                                         </button>
                                         <div className='flex justify-center rounded-md items-center text-white bg-gray-500 w-1/3 ml-1 mr-1 text-center font-bold text-xl'>
                                             {
-                                                location.newAvailablePoints && location.newAvailablePoints != location.availablePoints?
+                                                (location.newAvailablePoints || location.newAvailablePoints==0) && location.newAvailablePoints != location.availablePoints?
                                                 <>
                                                     <svg className='w-6 h-6 mr-3 cursor-pointer' onClick={()=>{this.savePoints(location)}} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M64 32C28.7 32 0 60.7 0 96V416c0 35.3 28.7 64 64 64H384c35.3 0 64-28.7 64-64V173.3c0-17-6.7-33.3-18.7-45.3L352 50.7C340 38.7 323.7 32 306.7 32H64zm0 96c0-17.7 14.3-32 32-32H288c17.7 0 32 14.3 32 32v64c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V128zM224 288a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>
                                                     {location.newAvailablePoints}

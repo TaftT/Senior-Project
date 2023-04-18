@@ -147,6 +147,18 @@ constructor(props) {
                 username:this.state.userInfo.username,
                 userId:newUser.id,
             })
+            const userPoints = collection(db,"userPoints")
+            let newUserPoints = await addDoc(userPoints,{
+                userId:newUser.id,
+                availableFree:300,
+                availablePaid:0,
+                totalPointsEarned:0,
+                pointsNotSpent:0,
+                totalVisits:0,
+                totalUniqueVisits:0,
+                username:this.state.userInfo.username
+            })
+            
         } catch (error){
             console.log(error)
         }
@@ -222,7 +234,7 @@ constructor(props) {
                 :
                 <div className='p-2 w-full bg-white shadow-md rounded-md'>
                     <div className="mb-3">
-                        <label className="font-bold text-sm">Enter Code Recived By Text</label>
+                        <label className="font-bold text-sm">Enter Code Received By Text</label>
                         <input className='w-full p-2 rounded-md border-2' type="text" maxLength="6" disabled={this.state.OTPCode.length==6} placeholder="Verification Code" onChange={(e)=>{
                             this.setState({OTPCode:e.target.value}, async ()=>{
                                 if(this.state.OTPCode.length==6){

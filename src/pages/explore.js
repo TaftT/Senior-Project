@@ -21,7 +21,7 @@ constructor(props) {
     "Be aware of the weather",
     "Stay hydrated",
     "Be cautious with strangers",
-    "Respect other people's property: Do not harm it",
+    "Respect other people's property",
     "Refresh while exploring to sort the location based on your location",
     "Provide value to our Pin Dasher community by staying longer at locations and supporting business owners.",
     // "Unsponsored points count towards! Go to sponsored locations to earn points to spend on raffles."
@@ -57,7 +57,8 @@ constructor(props) {
         testing:false,
         listOfVisitedIds:[],
         randomTip:Math.floor(Math.random() * tips.length),
-        tips:tips
+        tips:tips,
+        userPoints:{}
         // getmylocation:false
     };
 }
@@ -71,7 +72,7 @@ loadLocations(){
                 id: doc.id
             }))
             this.sortLocationsByDistance(this.state.latitude, this.state.longitude, filteredData).then((locations)=>{
-                console.log(locations)
+               
                 this.setState({locations:locations},()=>{
                     this.getListOfVisited()
                         resolve(true)
@@ -115,12 +116,12 @@ createVisitLog(){
                     ...doc.data(),
                     id: doc.id
                 }))
-                console.log("visits",visits)
+                
                 if(visits.length>0){
-                    console.log("repeat")
+                    
                     return false
                 } else {
-                    console.log("new")
+                   
 //                  const specificDate = new Date("2022-01-01"); // set specific date
 //                  const timestamp = Timestamp.fromDate(specificDate); // create a Timestamp object from specific date
                     const timestamp = serverTimestamp();
@@ -134,7 +135,7 @@ createVisitLog(){
                         expired:false,
                         visitedWebsite:false,
                     })
-                    console.log("new created")
+                    
                     return true
                 }
             })
@@ -209,18 +210,18 @@ getListOfVisited(){
                     id: doc.id
                 })));
                 let listOfVisitedIds=[]
-                console.log("before",filteredVisits)
+                
                 filteredVisits = filteredVisits.filter((visit) => {
                     return (visit.dateExpires == "" || visit.dateExpires.toDate() <= today) && visit.expired == false && visit.dateVisited !== null;
                   });
-                  console.log("after",filteredVisits)
+                  
                 for (let index = 0; index < filteredVisits.length; index++) {
                     const visit = filteredVisits[index];
                     listOfVisitedIds.push(visit.locationId) 
                 }
                 this.setState({listOfVisitedIds:listOfVisitedIds},
                     ()=>{
-                        console.log("list of visitied", this.state.listOfVisitedIds)
+                        // console.log("list of visitied", this.state.listOfVisitedIds)
                     })
             })
             .catch((error) => {
@@ -269,7 +270,7 @@ handleOrientation(event) {
         ORIENTATIONCOUNTER+= 1
     }
     if(ORIENTATIONCOUNTER===100){
-        console.log(absolute,alpha,beta,gamma)
+        // console.log(absolute,alpha,beta,gamma)
         this.setState({newSnap:true,alpha:alpha,beta:beta,gamma:gamma,absoluteOrientation:absolute,finishedGettingOrientation:true})
     }
   }
@@ -283,7 +284,7 @@ getLocation(){
       };
     const success = (pos) => {
             const crd = pos.coords;
-            console.log("getLocation")
+            // console.log("getLocation")
             if(this.state.latitude !== crd.latitude || this.state.longitude !== crd.longitude){
                     this.setState({
                         gettingLocation:false,
@@ -297,13 +298,13 @@ getLocation(){
                         speed:crd.speed,
                     },()=>{
                         const arrived = this.checkLocation()
-                        console.log("arrived",arrived)
+                        // console.log("arrived",arrived)
                         if(arrived){
                             this.visited()
                         }
                     })
             } else {
-                console.log("Closer")
+                // console.log("Closer")
                 this.setState({gettingLocation:false,locationFeedBack:"Please Move Closer"})
             }
             resolve(true)
@@ -342,7 +343,7 @@ getLocationAverage() {
       const success = (pos) => {
         
             const crd = pos.coords;
-        console.log("getLocation");
+        // console.log("getLocation");
   
         lat += crd.latitude;
         long += crd.longitude;
@@ -458,12 +459,48 @@ stopGeoWatch() {
     this.setState({GEOID:-1,gettingLocation:false})
   }
 
+async giveUserPoints(){
+    return new Promise(async (resolve, reject) =>  {
+        try{
+            if(this.state.selectedLocation && this.state.selectedLocation.availablePoints>=10 && this.state.arrived){
+                const pointsCollection = collection(db,"userPoints")
+                // console.log(this.state.user.uid,this.state.selectedLocation)
+                let q = query(pointsCollection,where("userId", "==", this.state.user.uid))
+                getDocs(q).then(async (res)=>{
+                    const filteredPoints = await Promise.all(res.docs.map(async (doc)=>({
+                        ...doc.data(),
+                        id: doc.id
+                    })));
+                    this.setState({userPoints:filteredPoints[0]},async ()=>{
+                        const dataDoc = doc(db,"locations",this.state.selectedLocation.id)
+                        let newLocation = await updateDoc(dataDoc,{
+                            availablePoints:this.state.selectedLocation.availablepoints-10,
+                            totalVisits:this.state.selectedLocation.totalVisits+1,
+                        })
+                        const userPointsDoc = doc(db,"userPoints",this.state.userPoints.id)
+                        await updateDoc(userPointsDoc,{
+                            totalPointsEarned:this.userPoints.totalPointsEarned+10,
+                            totalVisits:this.userPoints.totalVisits,
+                            userId:this.state.user.uid
+                        })
+                        resolve(true)
+                    })
+                })
+            }
+        } catch(error){
+            console.log(error)
+            reject(false) 
+        }
+    })
+    
+}
+
 
 
 visited(){
     try{
         const visitsCollection = collection(db,"visits")
-        console.log(this.state.user.uid,this.state.selectedLocation)
+        // console.log(this.state.user.uid,this.state.selectedLocation)
         let q = query(visitsCollection,where("ownerUserId", "==", this.state.user.uid),where("locationId", "==", this.state.selectedLocation.id))
         getDocs(q).then(async (res)=>{
             const filteredVisits = await Promise.all(res.docs.map(async (doc)=>({
@@ -474,7 +511,9 @@ visited(){
                 const visitsDoc = doc(db, "visits", filteredVisits[0].id)
                 const timestamp = serverTimestamp();
                 await updateDoc(visitsDoc, {dateVisited:timestamp}) 
-                this.loadLocations()
+                this.giveUserPoints().then(()=>{
+                    this.loadLocations()
+                })
                 return
             } else {
                 return false
@@ -519,7 +558,7 @@ visited(){
   
 checkLocation() {
     if (this.state.selectedLocation) {
-      console.log("checkLocation");
+    //   console.log("checkLocation");
       const latitude = this.state.latitude
       const longitude = this.state.longitude;
       const radius = this.state.selectedLocation.radius; // meters
@@ -572,7 +611,7 @@ toRadians(degrees) {
 sortLocationsByDistance(currentLat, currentLong, locations) {
     return new Promise(async (resolve, reject) =>  {
         // Loop through each location and calculate the distance to the current location
-        console.log(locations)
+        // console.log(locations)
         const sortedLocations = locations.map(location => {
             const lat1 = this.toRadians(currentLat);
             const lon1 = this.toRadians(currentLong);
@@ -635,6 +674,19 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                     onClick={()=>{
                         this.resetVisit()
                     }}>reset location</button>
+                    {/* <button className="mb-5 justify-center items-center rounded-md bg-gray-500 text-white font-bold p-3 w-full"
+                    onClick={async ()=>{
+                        const userPoints = collection(db,"userPoints")
+                        let newUserPoints = await addDoc(userPoints,{
+                            userId:"new",
+                            availableFree:300,
+                            availablePaid:0,
+                            totalPointsEarned:0,
+                            pointsNotSpent:0,
+                            totalVisits:0,
+                            totalUniqueVisits:0
+                        })
+                    }}>new points</button> */}
                 </div>
                 :
                 <></>
@@ -695,7 +747,7 @@ sortLocationsByDistance(currentLat, currentLong, locations) {
                                                         <button disabled={this.state.arrived} className={this.state.buttonClass?this.state.buttonClass:"rounded-md text-white font-bold p-3 w-full mb-5 bg-sky-900 hover:bg-sky-700"}
                                                         onClick={()=>{
                                                             if(this.state.selectedLocation){   
-                                                                console.log("There")   
+                                                                // console.log("There")   
                                                                 this.getLocationAverage();
                                                                 
                                                             }
