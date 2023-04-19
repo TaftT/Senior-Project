@@ -1518,7 +1518,7 @@ componentDidMount() {
                                 
 
                                 
-                               
+                                <p className="">Use this website to resize your images <Link className='cursor-pointer text-sky-500' to = "https://ezgif.com/" target="_blank">ezgif.com</Link>. usually Resizing is enough 500px width by auto height</p>
                                 <p className="text-red-500">{this.state.errorMsg}</p>
                                 <input disabled={this.state.buttonDisable} className={this.state.buttonDisable?'rounded-md  text-white font-bold p-3 w-full hover:bg-gray-500 bg-gray-700':'rounded-md  text-white font-bold p-3 w-full hover:bg-sky-700 bg-sky-900'}  type="submit" form="createLocation" value="Save Location"/>
                             </div>
